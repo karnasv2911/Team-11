@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "588674654843",
+    "firebase_url": "https://wocdriverapp.firebaseio.com",
+    "project_id": "wocdriverapp",
+    "storage_bucket": "wocdriverapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:588674654843:android:5f48c943cebd34b9a9f8de",
+        "android_client_info": {
+          "package_name": "com.kickstart.woc.wocdriverapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "588674654843-ltuk4uk0nqemn1mlhdgs1e6ndc75mq02.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6Z9GBc6YrXGmc6n0NFC-mx8EXKIYI7mI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "588674654843-ltuk4uk0nqemn1mlhdgs1e6ndc75mq02.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
