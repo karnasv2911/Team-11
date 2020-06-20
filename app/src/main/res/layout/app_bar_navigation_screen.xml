@@ -4,17 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.activity.NavigationScreenActivity">
+    tools:context=".ui.activities.DriverHomeActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <include layout="@layout/app_toolbar"/>
+
+    <include layout="@layout/activity_driver_home"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
-        <include layout="@layout/app_toolbar"/>
-
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <include layout="@layout/content_navigation_screen" />
+        android:layout_marginTop="80dp"/>
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

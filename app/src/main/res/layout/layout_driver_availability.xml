@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_searching_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/action_partition"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorAccent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/action_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/dAvailability"
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:layout_marginVertical="@dimen/top_margin">
+
+        <TextView
+            android:id="@+id/switchLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/dReady"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/colorAccent"
+            android:textSize="@dimen/text_input_16" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switchButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/text_input_16"
+            android:gravity="center_horizontal"
+            android:textOff="@string/dOff"
+            android:textOn="@string/dOn"
+            android:thumb="@drawable/sw_thumb"
+            app:track="@drawable/sw_track" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/dAvailabilityText"
+        android:layout_width="320dp"
+        android:layout_height="48dp"
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/dOffDuty"
+        android:textColor="@color/blueTrack"
+        android:gravity="center"
+        android:layout_gravity="center_horizontal"
+        android:textSize="@dimen/text_input_16"
+        android:background="@drawable/blue_border_off"/>
+
+    <include
+        layout="@layout/layout_contact_support" />
+</LinearLayout>

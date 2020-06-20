@@ -8,4 +8,12 @@
     <color name="editTextBorder">#bfbfbf</color>
     <color name="textColorNormal">#3c3c3c</color>
 
+    <!-- Map -->
+    <color name="white">#FFFFFF</color>
+    <color name="darkGrey">#737373</color>
+    <color name="blue1">#66a3ff</color>
+    <color name="blue">#1e82be</color>
+    <color name="blueTrack">#801e82be</color>
+    <color name="grey">#f1f1f1</color>
+    <color name="greyTrack">#42221f1f</color>
 </resources>

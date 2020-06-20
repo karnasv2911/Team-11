@@ -21,6 +21,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
 
 }
 
@@ -44,4 +48,19 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+    // Google Services
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
+
+    // Google Location
+    implementation 'com.google.android.gms:play-services-location:17.0.0'
+
+    // Google map utils for clustering
+    implementation 'com.google.maps.android:android-maps-utils:1.3.3'
+
+    // Google Directions
+    implementation 'com.google.maps:google-maps-services:0.14.0'
+
+    // Google Places
+    implementation 'com.google.android.libraries.places:places:2.2.0'
 }

@@ -2,6 +2,20 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.kickstart.woc.wocdriverapp">
 
+    <!-- The Maps SDK for Android uses OpenGL ES version 2 to render the map. -->
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
+    <!--
+         The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
+         Google Maps Android API v2, but you must specify either coarse or fine
+         location permissions for the 'MyLocation' functionality.
+    -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Used to run Location Service in the foreground -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -17,25 +31,31 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".ui.activity.CreateOrEditRiderActivity" />
+        <activity android:name=".ui.activities.CreateOrEditRiderActivity" />
         <activity
-            android:name=".ui.activity.NavigationScreenActivity"
-            android:label="@string/title_activity_navigation_screen"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-        <activity android:name=".ui.activity.SplashActivity">
+            android:name=".ui.activities.DriverHomeActivity"
+            android:label=""
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ui.activities.SplashActivity">
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+        </activity>
         <activity
-            android:name=".ui.activity.OTPValidationActivity"
+            android:name=".ui.activities.OTPValidationActivity"
             android:windowSoftInputMode="stateHidden|adjustResize" />
 
-        <activity android:name=".ui.activity.TermsAndConditionActivity"></activity>
+        <activity android:name=".ui.activities.TermsAndConditionActivity"></activity>
         <receiver
-            android:name=".ui.activity.SmsBroadcastReceiver"
+            android:name=".ui.activities.SmsBroadcastReceiver"
             android:enabled="false"
             android:exported="true">
             <intent-filter android:priority="1000">
@@ -43,10 +63,29 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".ui.service.AppFirebaseMessagingService">
+        <service android:name=".ui.services.AppFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
+        </service>
+
+        <!--
+           The API key for Google Maps-based APIs is defined as a string resource.
+           (See the file "res/values/google_maps_api.xml").
+           Note that the API key is linked to the encryption key used to sign the APK.
+           You need a different API key for each encryption key, including the release key that is used to
+           sign the APK for publishing.
+           You can define the keys for the debug and release targets in src/debug/ and src/release/.
+      -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <service android:name=".services.LocationService"
+            android:stopWithTask="true">
         </service>
 
     </application>
