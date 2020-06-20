@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/sourceInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/top_margin"
+        android:orientation="horizontal"
+        android:weightSum="100">
+
+        <TextView
+            android:id="@+id/sourceTV"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/horizontal_margin"
+            android:layout_weight="25"
+            android:text="@string/dPickup"
+            android:textColor="@color/colorAccent"
+            android:textSize="@dimen/text_input" />
+
+        <EditText
+            android:id="@+id/sourceET"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/text_input_size"
+            android:layout_marginRight="@dimen/horizontal_margin"
+            android:layout_weight="75"
+            android:gravity="center"
+            android:textSize="@dimen/text_input"
+            android:focusable="false"
+            android:enabled="false"
+            android:singleLine="true"
+            android:scrollHorizontally="true"
+            android:textColor="@color/blueTrack"
+            android:background="@drawable/blue_border_off"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/destinationInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/horizontal_margin"
+        android:orientation="horizontal"
+        android:weightSum="100">
+
+        <TextView
+            android:id="@+id/destinationTV"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/horizontal_margin"
+            android:layout_weight="25"
+            android:text="@string/dDestination"
+            android:textColor="@color/colorAccent"
+            android:textSize="@dimen/text_input" />
+
+        <EditText
+            android:id="@+id/destinationET"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/text_input_size"
+            android:layout_weight="75"
+            android:layout_marginRight="@dimen/horizontal_margin"
+            android:gravity="center"
+            android:textSize="@dimen/text_input"
+            android:focusable="false"
+            android:enabled="false"
+            android:singleLine="true"
+            android:scrollHorizontally="true"
+            android:textColor="@color/blueTrack"
+            android:background="@drawable/blue_border_off"/>
+    </LinearLayout>
+
+</LinearLayout>

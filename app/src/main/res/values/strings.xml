@@ -22,4 +22,50 @@
     <string name="action_upload">Upload Certificate</string>
     <string name="action_back">Back</string>
     <string name="url_terms_webview">https://developer.android.com/guide/webapps/webview</string>
+
+    <!-- Map -->
+    <string name="google_maps_key">AIzaSyATzo3QgFAOI64arXpJB4jANMVK6eQ0UD4</string>
+    <string name="driverVerfPending">Verification Pending</string>
+    <string name="driverVerfPendingText">Verification Pending Text</string>
+    <string name="dAvailability">Availability</string>
+    <string name="dOnDuty">Driver on Duty</string>
+    <string name="dOffDuty">Driver off Duty</string>
+    <string name="dOff">Off</string>
+    <string name="dOn">On</string>
+    <string name="dReady">Ready to take rides  </string>
+    <string name="dContactSupport">Contact Support</string>
+    <string name="rideRequest">Ride Request</string>
+    <string name="accept">Accept</string>
+    <string name="reject">Reject</string>
+    <string name="rideFound">Ride Found</string>
+    <string name="startTrip">Start Trip</string>
+    <string name="callRider">Call Rider</string>
+    <string name="dCancelRide">Cancel Ride</string>
+    <string name="enterOTP">Enter Rider OTP</string>
+    <string name="dConfirmOTP">Confirm</string>
+    <string name="dOnTrip">On Trip</string>
+    <string name="endRide">End Ride</string>
+    <string name="dPickup">Pickup</string>
+    <string name="dDestination">Destination</string>
+    <string name="areyousure">Are you sure?</string>
+    <string name="dCancel">Cancel</string>
+    <string name="navigate">Navigate</string>
+    <string name="isRideAccepted">isRideAccepted</string>
+    <string name="cancelRide">Cancel Ride</string>
+    <string name="intent_input_container">intentInputContainer</string>
+    <string name="tripSummary">Trip Summary</string>
+    <string name="from">From: </string>
+    <string name="to">To: </string>
+    <string name="distance">Distance</string>
+    <string name="time">Time</string>
+    <string name="rateTrip">Rate Trip</string>
+    <string name="tripSummaryText">Please collect money from the rider</string>
+    <string name="amount">Amount</string>
+    <string name="done">Done</string>
+    <string name="rateRider">Rate Rider</string>
+    <string name="comments">Comments (optional)</string>
+    <string name="Rs">\u20B9</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

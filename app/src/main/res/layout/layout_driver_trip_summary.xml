@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_searching_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/action_partition"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorAccent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/action_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/tripSummary"
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/tripSummary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/amountTV"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center_horizontal"
+            android:text="@string/amount"
+            android:textSize="@dimen/text_input_36" />
+
+        <TextView
+            android:id="@+id/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/tripSummaryText"
+            android:layout_marginBottom="@dimen/vertical_margin"/>
+
+        <TextView
+            android:id="@+id/pickup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/dPickup" />
+
+        <TextView
+            android:id="@+id/sourceTV"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/text_input_size"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/dPickup"
+            android:textColor="@color/blueTrack"
+            android:background="@drawable/blue_border_off"
+            android:singleLine="true"
+            android:scrollHorizontally="true"/>
+
+        <TextView
+            android:id="@+id/destination"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/dDestination"
+            android:layout_marginTop="@dimen/vertical_margin"/>
+
+        <TextView
+            android:id="@+id/destinationTV"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/text_input_size"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/dDestination"
+            android:textColor="@color/blueTrack"
+            android:background="@drawable/blue_border_off"
+            android:singleLine="true"
+            android:scrollHorizontally="true"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginVertical="@dimen/bottom_margin"
+            android:orientation="horizontal"
+            android:weightSum="100">
+
+            <TextView
+                android:id="@+id/distanceTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="50"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/distance"
+                android:textSize="@dimen/text_input_16"
+                android:textColor="@color/blueTrack"
+                android:drawableLeft="@drawable/ic_distance"/>
+
+            <TextView
+                android:id="@+id/timeTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="50"
+                android:layout_marginHorizontal="@dimen/margin_8"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/blueTrack"
+                android:text="@string/time"
+                android:textSize="@dimen/text_input_16"
+                android:drawableLeft="@drawable/ic_time"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/rateRider"
+        android:layout_width="@dimen/button_width"
+        android:layout_height="@dimen/button_height"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/rounded_button_blue"
+        android:text="@string/rateTrip"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:layout_marginBottom="@dimen/vertical_margin"
+        android:textSize="@dimen/button_text_size" />
+
+    <include
+        layout="@layout/layout_contact_support"/>
+
+</LinearLayout>
