@@ -41,7 +41,7 @@ public class DriverOnTripFragment extends Fragment implements View.OnClickListen
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.layout_driver_on_trip, container, false);
+        View view = inflater.inflate(R.layout.fragment_driver_on_trip, container, false);
         EditText mSource = view.findViewById(R.id.sourceET);
         EditText mDestination = view.findViewById(R.id.destinationET);
         mSource.setCompoundDrawables(null, null, null, null);
@@ -97,7 +97,6 @@ public class DriverOnTripFragment extends Fragment implements View.OnClickListen
             @Override
             public void onClick(View view) {
                 userClient.endRide();
-                Toast.makeText(getContext(), "Accept Ride", Toast.LENGTH_LONG).show();
                 alert.dismiss();
                 replaceInputContainerListener.onReplaceInputContainer(MapInputContainerEnum.DriverTripSummaryFragment);
             }

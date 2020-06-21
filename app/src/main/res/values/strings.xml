@@ -54,8 +54,6 @@
     <string name="cancelRide">Cancel Ride</string>
     <string name="intent_input_container">intentInputContainer</string>
     <string name="tripSummary">Trip Summary</string>
-    <string name="from">From: </string>
-    <string name="to">To: </string>
     <string name="distance">Distance</string>
     <string name="time">Time</string>
     <string name="rateTrip">Rate Trip</string>

@@ -7,14 +7,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
 import com.kickstart.woc.wocdriverapp.R;
 import com.kickstart.woc.wocdriverapp.model.User;
+import com.kickstart.woc.wocdriverapp.ui.listeners.PhoneCallListener;
 import com.kickstart.woc.wocdriverapp.ui.listeners.ReplaceInputContainerListener;
 import com.kickstart.woc.wocdriverapp.utils.FragmentUtils;
+import com.kickstart.woc.wocdriverapp.utils.WocConstants;
 import com.kickstart.woc.wocdriverapp.utils.map.MapInputContainerEnum;
 import com.kickstart.woc.wocdriverapp.utils.map.UserClient;
 
@@ -28,6 +29,7 @@ public class DriverEnterRiderOTPFragment extends Fragment implements View.OnClic
     private UserClient userClient = new UserClient();
     private FragmentUtils fragmentUtils = new FragmentUtils();
     private ReplaceInputContainerListener replaceInputContainerListener;
+    private PhoneCallListener phoneCallListener;
 
     private EditText mETOTP1;
     private EditText mETOTP2;
@@ -46,7 +48,7 @@ public class DriverEnterRiderOTPFragment extends Fragment implements View.OnClic
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.layout_driver_enter_rider_otp, container, false);
+        View view = inflater.inflate(R.layout.fragment_driver_enter_rider_otp, container, false);
         mETOTP1 = view.findViewById(R.id.etOPT1);
         mETOTP1.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -85,19 +87,15 @@ public class DriverEnterRiderOTPFragment extends Fragment implements View.OnClic
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof ReplaceInputContainerListener) {
-            //init the listener
-            replaceInputContainerListener = (ReplaceInputContainerListener) context;
-        } else {
-            throw new IllegalArgumentException(context.toString()
-                    + " must implement ReplaceFullViewFragmentListener");
-        }
+        replaceInputContainerListener = (ReplaceInputContainerListener) context;
+        phoneCallListener = (PhoneCallListener) context;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         replaceInputContainerListener = null;
+        phoneCallListener = null;
     }
 
     private void changeEditTextBorder(View view) {
@@ -127,11 +125,10 @@ public class DriverEnterRiderOTPFragment extends Fragment implements View.OnClic
             case R.id.btnConfirmOTP:
                 boolean isValidOTP = userClient.sendOTPDetails(mETOTP1.getText().toString(), mETOTP2.getText().toString(),
                         mETOTP3.getText().toString(), mETOTP4.getText().toString());
-                Toast.makeText(getContext(), "Confirm OTP" + isValidOTP, Toast.LENGTH_LONG).show();
                 replaceInputContainerListener.onReplaceInputContainer(MapInputContainerEnum.DriverOnTripFragment);
                 break;
             case R.id.btnContactSupport:
-                Toast.makeText(getContext(), "Contact Support", Toast.LENGTH_LONG).show();
+                phoneCallListener.onMakePhoneCall(MapInputContainerEnum.DriverEnterRiderOTPFragment, WocConstants.CONTACT_SUPPORT);
                 break;
         }
     }

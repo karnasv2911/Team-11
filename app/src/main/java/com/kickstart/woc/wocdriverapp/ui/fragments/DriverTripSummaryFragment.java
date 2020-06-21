@@ -1,6 +1,11 @@
 package com.kickstart.woc.wocdriverapp.ui.fragments;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,12 +19,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.kickstart.woc.wocdriverapp.R;
 import com.kickstart.woc.wocdriverapp.model.User;
+import com.kickstart.woc.wocdriverapp.ui.listeners.PhoneCallListener;
 import com.kickstart.woc.wocdriverapp.ui.listeners.ReplaceInputContainerListener;
-import com.kickstart.woc.wocdriverapp.utils.FragmentUtils;
+import com.kickstart.woc.wocdriverapp.utils.WocConstants;
 import com.kickstart.woc.wocdriverapp.utils.map.MapInputContainerEnum;
 import com.kickstart.woc.wocdriverapp.utils.map.UserClient;
 
@@ -31,8 +39,8 @@ public class DriverTripSummaryFragment extends Fragment implements View.OnClickL
 
     private User driver;
     private UserClient userClient = new UserClient();
-    private FragmentUtils fragmentUtils = new FragmentUtils();
     private ReplaceInputContainerListener replaceInputContainerListener;
+    private PhoneCallListener phoneCallListener;
 
     private Button mContactSupportButton;
     private TextView mSourceTV;
@@ -51,7 +59,7 @@ public class DriverTripSummaryFragment extends Fragment implements View.OnClickL
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.layout_driver_trip_summary, null, false);
+        View view = inflater.inflate(R.layout.fragment_driver_trip_summary, null, false);
         mContactSupportButton = view.findViewById(R.id.btnContactSupport);
         mContactSupportButton.setOnClickListener(this::onClick);
         mRateRider = view.findViewById(R.id.rateRider);
@@ -82,30 +90,25 @@ public class DriverTripSummaryFragment extends Fragment implements View.OnClickL
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof ReplaceInputContainerListener) {
-            //init the listener
-            replaceInputContainerListener = (ReplaceInputContainerListener) context;
-        } else {
-            throw new IllegalArgumentException(context.toString()
-                    + " must implement ReplaceFullViewFragmentListener");
-        }
+        replaceInputContainerListener = (ReplaceInputContainerListener) context;
+        phoneCallListener = (PhoneCallListener) context;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         replaceInputContainerListener = null;
+        phoneCallListener = null;
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnContactSupport:
-                Toast.makeText(getContext(), "Call Contact Support", Toast.LENGTH_LONG).show();
+                phoneCallListener.onMakePhoneCall(MapInputContainerEnum.DriverTripSummaryFragment, WocConstants.CONTACT_SUPPORT);
                 break;
             case R.id.rateRider:
                 showRateTripAlert();
-                Toast.makeText(getContext(), "Call Contact Support", Toast.LENGTH_LONG).show();
                 break;
         }
 
@@ -129,7 +132,6 @@ public class DriverTripSummaryFragment extends Fragment implements View.OnClickL
                 String comments = mComments.getText().toString();
                 userClient.rateTrip(rating, comments);
                 alert.dismiss();
-                Toast.makeText(getContext(), "Rating: " + rating + " Comments: " + comments , Toast.LENGTH_LONG).show();
                 replaceInputContainerListener.onReplaceInputContainer(MapInputContainerEnum.DriverAvailabilityFragment);
             }
         });

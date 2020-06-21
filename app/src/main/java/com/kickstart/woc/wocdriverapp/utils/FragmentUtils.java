@@ -14,7 +14,7 @@ public class FragmentUtils {
         // Replace the layout holder with the required Fragment object.
         fragmentTransaction.replace(containerId, destination, destination.getTag());
 
-        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.addToBackStack(source);
 
         // Commit the Fragment replace action.
         fragmentTransaction.commit();
