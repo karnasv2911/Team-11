@@ -72,12 +72,12 @@ public class DriverHomeActivity extends AppCompatActivity
     private FusedLocationProviderClient mFusedLocationClient;
     private UserClient userClient = new UserClient();
     private FragmentUtils fragmentUtils = new FragmentUtils();
+    private MapInputContainerEnum mapInputContainerEnum = MapInputContainerEnum.Unknown;
     private Location mUserLocation;
 
     private int mMapLayoutState = 0;
     private boolean mLocationPermissionGranted = false;
     private boolean isLocationServicesOn = false;
-    private MapInputContainerEnum mapInputContainerEnum = MapInputContainerEnum.Unknown;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

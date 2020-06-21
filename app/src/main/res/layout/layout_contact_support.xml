@@ -8,7 +8,7 @@
     <Button
         android:id="@+id/btnContactSupport"
         android:layout_width="@dimen/button_small_width"
-        android:layout_height="@dimen/button_small_height"
+        android:layout_height="@dimen/button_height"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:background="@drawable/rounded_button_grey"
