@@ -2,15 +2,21 @@ package com.kickstart.woc.wocdriverapp.ui.activities;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -71,6 +77,7 @@ public class OTPValidationActivity extends BaseActivity implements View.OnClickL
     }
 
     private void initUI() {
+        setStatusBar();
         mMobileScreenContainer= findViewById(R.id.mobileScreenContainer);
         mOTPScreenContainer= findViewById(R.id.otpScreenContainer);
 
@@ -97,6 +104,19 @@ public class OTPValidationActivity extends BaseActivity implements View.OnClickL
         editText3.setOnKeyListener(new PinOnKeyListener(2));
         editText4.setOnKeyListener(new PinOnKeyListener(3));
 
+    }
+
+
+    private void setStatusBar() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            Drawable background = getResources().getDrawable(R.drawable.bg_blue_gradient);
+            window.setStatusBarColor(getResources().getColor(android.R.color.transparent));
+            window.setNavigationBarColor(getResources().getColor(android.R.color.transparent));
+            window.setBackgroundDrawable(background);
+        }
     }
 
 

@@ -4,31 +4,47 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:fitsSystemWindows="true"
     tools:context=".ui.activities.OTPValidationActivity">
-
-    <include
-        layout="@layout/view_logo_container"
+    <androidx.core.widget.NestedScrollView
+        android:gravity="center_horizontal"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="6"
-        />
+        android:layout_height="match_parent"
+        android:scrollbars="none"
+        android:fillViewport="true">
 
-    <include
-        layout="@layout/view_mobile_screen"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="4"
-        android:visibility="visible"
-        android:id="@+id/mobileScreenContainer"
-        />
+        <LinearLayout
+            android:background="?android:colorBackground"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+            <include
+                layout="@layout/view_logo_container"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="6"
+                />
 
-    <include
-        layout="@layout/view_otp_screen"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="4"
-        android:visibility="gone"
-        android:id="@+id/otpScreenContainer"
-        />
+            <include
+                layout="@layout/view_mobile_screen"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="4"
+                android:visibility="visible"
+                android:id="@+id/mobileScreenContainer"
+                />
+
+            <include
+                layout="@layout/view_otp_screen"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="4"
+                android:visibility="gone"
+                android:id="@+id/otpScreenContainer"
+                />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
 
 </LinearLayout>
