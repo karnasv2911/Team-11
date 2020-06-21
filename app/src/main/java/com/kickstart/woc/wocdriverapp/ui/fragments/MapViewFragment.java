@@ -30,7 +30,7 @@ import com.kickstart.woc.wocdriverapp.utils.map.WocClusterManagerRenderer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.kickstart.woc.wocdriverapp.utils.map.Constants.MAPVIEW_BUNDLE_KEY;
+import static com.kickstart.woc.wocdriverapp.utils.WocConstants.MAPVIEW_BUNDLE_KEY;
 
 public class MapViewFragment extends Fragment implements OnMapReadyCallback,
         View.OnClickListener {
@@ -46,7 +46,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
     private MapView mMapView;
 
     private User rider;
-    private boolean isRideAccepted;
     private User driver;
     private GoogleMap mGoogleMap;
     private LatLngBounds mMapBoundary;
@@ -69,13 +68,9 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-//            driver = getArguments().getParcelable(getString(R.string.intent_driver));
-//            isDriverMatched = getArguments().getBoolean(getString(R.string.intent_rider_matched), false);
-//            if (is) {
-//                rider = getArguments().getParcelable(getString(R.string.intent_rider));
-//            }
-            isRideAccepted = getArguments().getBoolean(getString(R.string.isRideAccepted), false);
+        driver = userClient.getDriverDetails();
+        if (userClient.isRideAccepted()) {
+            rider = userClient.getRiderDetails();
         }
     }
 
@@ -91,10 +86,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
 
         view.findViewById(R.id.btn_full_screen_map).setOnClickListener(this);
         view.findViewById(R.id.btn_reset_map).setOnClickListener(this);
-        driver = userClient.getDriverDetails();
-        if (isRideAccepted) {
-            rider = userClient.getRiderDetails();
-        }
 
         // TODO: Used in driver app
         /*
@@ -291,7 +282,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
         mClusterManager.addItem(driverClusterMarker);
         mClusterMarkers.add(driverClusterMarker);
 
-        if (isRideAccepted && rider != null) {
+        if (userClient.isRideAccepted() && rider != null) {
             ClusterMarker riderClusterMarker = userClient.getUserClusterMarker(rider);
             mClusterManager.addItem(riderClusterMarker);
             mClusterMarkers.add(riderClusterMarker);

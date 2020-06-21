@@ -33,11 +33,11 @@ public class UserClient {
     }
 
     public User getDriverDetails() {
-        return new User("driverId", true, true, "driverName", "driver@gmail.com", "7338520111", R.drawable.ic_driver_pin, 4.5, getSourceAddress(), null, null, null, getCurrentTimeStamp());
+        return new User("driverId", true, true, "driverName", "driver@gmail.com", "1234567890", R.drawable.ic_driver_pin, 4.5, getSourceAddress(), null, null, null, getCurrentTimeStamp());
     }
 
     public User getRiderDetails() {
-        return new User("riderId", true, true, "riderName", "rider@gmail.com", "7338520111", R.drawable.ic_driver_pin, 4.5, getSourceAddress(), getDestinationAddress(), null, null, getCurrentTimeStamp());
+        return new User("riderId", true, true, "riderName", "rider@gmail.com", "1234567890", R.drawable.ic_rider_pin, 4.5, getSourceAddress(), getDestinationAddress(), null, null, getCurrentTimeStamp());
     }
 
     public void setUserVerified(boolean isVerified) {
@@ -152,5 +152,14 @@ public class UserClient {
         map.put("time", "35 min");
         map.put("amount", "140");
         return map;
+    }
+
+    // N/W call
+    public boolean isRideAccepted() {
+        return false;
+    }
+
+    public void cancelRideRequest() {
+
     }
 }

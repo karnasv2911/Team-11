@@ -1,17 +1,13 @@
 package com.kickstart.woc.wocdriverapp.ui.fragments;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
-import com.google.android.gms.maps.MapFragment;
+import androidx.fragment.app.Fragment;
+
 import com.kickstart.woc.wocdriverapp.R;
 import com.kickstart.woc.wocdriverapp.model.User;
 import com.kickstart.woc.wocdriverapp.utils.FragmentUtils;
@@ -23,6 +19,7 @@ import java.io.IOException;
 public class DriverHomeFragment extends Fragment {
 
     private static final String TAG = DriverHomeFragment.class.getSimpleName();
+
     private FragmentUtils fragmentUtils = new FragmentUtils();
     private UserClient userClient = new UserClient();
     private User driver;
@@ -50,16 +47,16 @@ public class DriverHomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_driver_home, null, false);
-        renderInputViewContainer(view);
+        View view = inflater.inflate(R.layout.fragment_driver_home, container, false);
+        renderInputViewContainer();
         return view;
     }
 
-    private void renderInputViewContainer(View view) {
+    private void renderInputViewContainer() {
         switch (mapInputContainerEnum) {
             case DriverVerificationFragment:
                 fragmentUtils.replaceFragment(R.id.map_view_container, TAG, getFragmentManager(), new MapViewFragment());
-                fragmentUtils.replaceFragment(R.id.input_view_container, TAG, getChildFragmentManager(), new DriverVerificationFragment());
+                fragmentUtils.replaceFragment(R.id.input_view_container, TAG, getFragmentManager(), new DriverVerificationFragment());
                 break;
             case DriverAvailabilityFragment:
                 fragmentUtils.replaceFragment(R.id.map_view_container, TAG, getFragmentManager(), new MapViewFragment());
@@ -78,7 +75,7 @@ public class DriverHomeFragment extends Fragment {
                 fragmentUtils.replaceFragment(R.id.input_view_container, TAG, getFragmentManager(), new DriverOnTripFragment());
                 break;
             case DriverTripSummaryFragment:
-                fragmentUtils.replaceFragment(R.id.riderHomeContainer, TAG, getFragmentManager(), new DriverTripSummaryFragment());
+                fragmentUtils.replaceFragment(R.id.driverHomeContainer, TAG, getFragmentManager(), new DriverTripSummaryFragment());
                 break;
             case Unknown:
                 try {

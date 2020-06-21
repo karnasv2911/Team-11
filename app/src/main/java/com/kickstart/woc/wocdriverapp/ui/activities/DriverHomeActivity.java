@@ -1,5 +1,6 @@
 package com.kickstart.woc.wocdriverapp.ui.activities;
 
+import android.Manifest;
 import android.app.ActivityManager;
 import android.app.Dialog;
 import android.content.Context;
@@ -9,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -37,27 +39,31 @@ import com.kickstart.woc.wocdriverapp.R;
 import com.kickstart.woc.wocdriverapp.model.User;
 import com.kickstart.woc.wocdriverapp.services.LocationService;
 import com.kickstart.woc.wocdriverapp.ui.fragments.DriverHomeFragment;
-import com.kickstart.woc.wocdriverapp.ui.fragments.DriverTripSummaryFragment;
 import com.kickstart.woc.wocdriverapp.ui.fragments.MapViewFragment;
+import com.kickstart.woc.wocdriverapp.ui.listeners.PhoneCallListener;
 import com.kickstart.woc.wocdriverapp.ui.listeners.ReplaceInputContainerListener;
 import com.kickstart.woc.wocdriverapp.utils.FragmentUtils;
+import com.kickstart.woc.wocdriverapp.utils.WocConstants;
 import com.kickstart.woc.wocdriverapp.utils.map.ExpandContractMapUtil;
 import com.kickstart.woc.wocdriverapp.utils.map.MapInputContainerEnum;
 import com.kickstart.woc.wocdriverapp.utils.map.UserClient;
 
 import java.util.Locale;
 
-import static com.kickstart.woc.wocdriverapp.utils.map.Constants.ERROR_DIALOG_REQUEST;
-import static com.kickstart.woc.wocdriverapp.utils.map.Constants.MAP_LAYOUT_STATE_CONTRACTED;
-import static com.kickstart.woc.wocdriverapp.utils.map.Constants.MAP_LAYOUT_STATE_EXPANDED;
-import static com.kickstart.woc.wocdriverapp.utils.map.Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
-import static com.kickstart.woc.wocdriverapp.utils.map.Constants.PERMISSIONS_REQUEST_ENABLE_GPS;
+import static com.kickstart.woc.wocdriverapp.utils.WocConstants.ERROR_DIALOG_REQUEST;
+import static com.kickstart.woc.wocdriverapp.utils.WocConstants.MAP_LAYOUT_STATE_CONTRACTED;
+import static com.kickstart.woc.wocdriverapp.utils.WocConstants.MAP_LAYOUT_STATE_EXPANDED;
+import static com.kickstart.woc.wocdriverapp.utils.WocConstants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
+import static com.kickstart.woc.wocdriverapp.utils.WocConstants.PERMISSIONS_REQUEST_ENABLE_GPS;
+import static com.kickstart.woc.wocdriverapp.utils.WocConstants.PERMISSIONS_REQUEST_PHONE_CALL;
+import static com.kickstart.woc.wocdriverapp.utils.WocConstants.REQUEST_CALL;
 
 
 public class DriverHomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         MapViewFragment.MapViewSizeListener,
-        ReplaceInputContainerListener {
+        ReplaceInputContainerListener,
+        PhoneCallListener {
 
     private static final String TAG = DriverHomeActivity.class.getSimpleName();
 
@@ -70,6 +76,7 @@ public class DriverHomeActivity extends AppCompatActivity
     private int mMapLayoutState = 0;
     private boolean mLocationPermissionGranted = false;
     private boolean isLocationServicesOn = false;
+    private MapInputContainerEnum mapInputContainerEnum = MapInputContainerEnum.Unknown;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +95,15 @@ public class DriverHomeActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        if (checkMapServices()) {
+            if (mLocationPermissionGranted) {
+                getUserDetails();
+            } else {
+                getLocationPermission();
+            }
+            showFragment();
+        }
     }
 
     @Override
@@ -147,19 +163,14 @@ public class DriverHomeActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+//
+//    @Override
+//    public void onResume() {
+//        super.onResume();
+//
+//    }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (checkMapServices()) {
-            if (mLocationPermissionGranted) {
-                getUserDetails();
-            } else {
-                getLocationPermission();
-            }
-            showFragment();
-        }
-    }
+
 
     private void showFragment() {
         User rider = userClient.getRiderDetails();
@@ -167,15 +178,7 @@ public class DriverHomeActivity extends AppCompatActivity
         Place place = Place.builder().setAddress("PayPal Office").build();
         Log.d(TAG, place.getAddress());
         rider.setDestinationPlace(place);
-        onReplaceInputContainer(MapInputContainerEnum.Unknown);
-
-//        fragmentUtils.replaceFragment(R.id.driver_home_fragment, TAG, this.getSupportFragmentManager(), new DriverHomeFragment());
-
-//        replaceFragment(R.id.rider_home_fragment, new DriverVerificationFragment());
-//        replaceFragment(R.id.rider_home_fragment, new DriverAvailabilityFragment());
-//        replaceFragment(R.id.rider_home_fragment, new DriverRideFoundFragment());
-//        replaceFragment(R.id.rider_home_fragment, new DriverEnterRiderOTPFragment());
-//        replaceFragment(R.id.rider_home_fragment, new DriverOnTripFragment());
+        onReplaceInputContainer(mapInputContainerEnum);
     }
 
     @Override
@@ -193,20 +196,6 @@ public class DriverHomeActivity extends AppCompatActivity
                     mInputViewContainer, 0, 100 - mapSize);
         }
     }
-//
-//    @Override
-//    public void onMapLocationSelection(Place source, Place destination) {
-//        User rider = userClient.getRiderDetails();
-//        rider.setSourcePlace(source);
-//        rider.setDestinationPlace(destination);
-//
-//        RiderHomeFragment riderHomeFragment = new RiderHomeFragment();
-//        Bundle bundle = new Bundle();
-//        bundle.putParcelable(getString(R.string.intent_rider), rider);
-//        bundle.putString(getString(R.string.intent_input_container), MapInputContainerEnum.RiderFindDriverMatch.toString());
-//        riderHomeFragment.setArguments(bundle);
-//        fragmentUtils.replaceFragment(R.id.rider_home_fragment, this.getSupportFragmentManager(), riderHomeFragment);
-//    }
 
     /*
        Step 0: Check Map Service
@@ -240,6 +229,7 @@ public class DriverHomeActivity extends AppCompatActivity
             dialog.show();
         } else {
             Toast.makeText(this, "You can't make map requests", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "You can't make map requests");
         }
         return false;
     }
@@ -277,13 +267,16 @@ public class DriverHomeActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
         Log.d(TAG, "onActivityResult: called.");
         switch (requestCode) {
-            case PERMISSIONS_REQUEST_ENABLE_GPS: {
+            case PERMISSIONS_REQUEST_ENABLE_GPS:
                 if (mLocationPermissionGranted) {
                     getUserDetails();
                 } else {
                     getLocationPermission();
                 }
-            }
+            break;
+            case PERMISSIONS_REQUEST_PHONE_CALL:
+
+                break;
         }
     }
 
@@ -313,13 +306,20 @@ public class DriverHomeActivity extends AppCompatActivity
                                            @NonNull int[] grantResults) {
         mLocationPermissionGranted = false;
         switch (requestCode) {
-            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION:
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mLocationPermissionGranted = true;
                 }
-            }
+
+                break;
+            case REQUEST_CALL:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    mapInputContainerEnum = MapInputContainerEnum.valueOf(permissions[2]);
+                    onMakePhoneCall(mapInputContainerEnum, permissions[1]);
+                }
+                break;
         }
     }
 
@@ -420,4 +420,18 @@ public class DriverHomeActivity extends AppCompatActivity
 //    public void onStartNavigation(NavigationListener navigationListener) {
 //        this.mNavigationListener = navigationListener;
 //    }
+
+    @Override
+    public void onMakePhoneCall(MapInputContainerEnum mapInputContainerEnum, String number) {
+        if (number.trim().length() > 0) {
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.CALL_PHONE, number, mapInputContainerEnum.name()}, WocConstants.REQUEST_CALL);
+            } else {
+                String dial = "tel: " + number;
+                startActivityForResult(new Intent(Intent.ACTION_CALL, Uri.parse(dial)), PERMISSIONS_REQUEST_PHONE_CALL);
+            }
+        }
+    }
 }
