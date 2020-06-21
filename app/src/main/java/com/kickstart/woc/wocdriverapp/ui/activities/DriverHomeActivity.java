@@ -26,6 +26,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -38,6 +39,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.kickstart.woc.wocdriverapp.R;
 import com.kickstart.woc.wocdriverapp.model.User;
 import com.kickstart.woc.wocdriverapp.services.LocationService;
+import com.kickstart.woc.wocdriverapp.ui.fragments.DriverAvailabilityFragment;
 import com.kickstart.woc.wocdriverapp.ui.fragments.DriverHomeFragment;
 import com.kickstart.woc.wocdriverapp.ui.fragments.MapViewFragment;
 import com.kickstart.woc.wocdriverapp.ui.listeners.PhoneCallListener;
@@ -55,7 +57,6 @@ import static com.kickstart.woc.wocdriverapp.utils.WocConstants.MAP_LAYOUT_STATE
 import static com.kickstart.woc.wocdriverapp.utils.WocConstants.MAP_LAYOUT_STATE_EXPANDED;
 import static com.kickstart.woc.wocdriverapp.utils.WocConstants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
 import static com.kickstart.woc.wocdriverapp.utils.WocConstants.PERMISSIONS_REQUEST_ENABLE_GPS;
-import static com.kickstart.woc.wocdriverapp.utils.WocConstants.PERMISSIONS_REQUEST_PHONE_CALL;
 import static com.kickstart.woc.wocdriverapp.utils.WocConstants.REQUEST_CALL;
 
 
@@ -109,8 +110,11 @@ public class DriverHomeActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        Fragment f = getSupportFragmentManager().findFragmentById(R.id.input_view_container);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+        } else if (f instanceof DriverAvailabilityFragment) {//the fragment on which you want to handle your back press
+            Log.i("BACK PRESSED", "BACK PRESSED");
         } else {
             super.onBackPressed();
         }
@@ -163,14 +167,6 @@ public class DriverHomeActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-//
-//    @Override
-//    public void onResume() {
-//        super.onResume();
-//
-//    }
-
-
 
     private void showFragment() {
         User rider = userClient.getRiderDetails();
@@ -273,9 +269,6 @@ public class DriverHomeActivity extends AppCompatActivity
                 } else {
                     getLocationPermission();
                 }
-            break;
-            case PERMISSIONS_REQUEST_PHONE_CALL:
-
                 break;
         }
     }
@@ -430,7 +423,7 @@ public class DriverHomeActivity extends AppCompatActivity
                         new String[]{Manifest.permission.CALL_PHONE, number, mapInputContainerEnum.name()}, WocConstants.REQUEST_CALL);
             } else {
                 String dial = "tel: " + number;
-                startActivityForResult(new Intent(Intent.ACTION_CALL, Uri.parse(dial)), PERMISSIONS_REQUEST_PHONE_CALL);
+                startActivity(new Intent(Intent.ACTION_CALL, Uri.parse(dial)));
             }
         }
     }
