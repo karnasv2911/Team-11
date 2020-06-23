@@ -1,12 +1,14 @@
 package com.kickstart.woc.wocdriverapp.ui.fragments;
 
 import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -34,7 +36,7 @@ public class DriverAvailabilityFragment extends Fragment implements View.OnClick
     private PhoneCallListener phoneCallListener;
 
     private Button mContactSupportButton;
-    private SwitchCompat mSwitchCompat;
+    private Switch mSwitchCompat;
     private TextView mAvailabilityText;
 
     @Override
@@ -47,7 +49,6 @@ public class DriverAvailabilityFragment extends Fragment implements View.OnClick
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_driver_availability, null, true);
-//        Log.d(TAG, "onCreateView: rider location: " + driver.toString());
         mContactSupportButton = view.findViewById(R.id.btnContactSupport);
         mSwitchCompat = view.findViewById(R.id.switchButton);
         mAvailabilityText = view.findViewById(R.id.dAvailabilityText);
