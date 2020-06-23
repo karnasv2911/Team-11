@@ -14,7 +14,7 @@
         android:layout_marginTop="20dp"
         android:gravity="left"
         android:text="@string/rateRider"
-        android:textColor="@color/blueTrack"
+        android:textColor="@color/blue"
         android:textSize="20dp" />
 
     <RatingBar
@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_marginVertical="@dimen/bottom_margin"
         android:numStars="5"
-        android:progressTint="@color/blueTrack"
+        android:progressTint="@color/blue"
         android:stepSize="1" />
 
 

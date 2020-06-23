@@ -25,7 +25,7 @@
         <ImageButton
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:src="@drawable/ic_gps"
+            android:src="@drawable/locate"
             android:background="@color/white"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"

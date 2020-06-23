@@ -36,33 +36,31 @@
 
         <Button
             android:id="@+id/dNavigateToRider"
-            android:layout_width="wrap_content"
+            android:layout_width="120dp"
             android:layout_height="@dimen/button_small_height"
             android:layout_centerHorizontal="true"
             android:background="@drawable/rounded_button_blue"
-            android:drawableLeft="@drawable/ic_navigate"
+            android:drawableLeft="@drawable/navigate"
             android:drawablePadding="4dp"
-            android:paddingLeft="4dp"
+            android:paddingLeft="12dp"
             android:paddingRight="12dp"
             android:text="@string/navigate"
             android:textAllCaps="false"
-            android:textColor="@android:color/white"
-            android:textSize="@dimen/button_small_text_size"/>
+            android:textColor="@android:color/white"/>
 
         <Button
             android:id="@+id/dCallRider"
-            android:layout_width="wrap_content"
+            android:layout_width="120dp"
             android:layout_height="@dimen/button_small_height"
             android:layout_centerHorizontal="true"
             android:background="@drawable/rounded_button_blue"
-            android:drawableLeft="@drawable/ic_call"
+            android:drawableLeft="@drawable/call"
             android:drawablePadding="4dp"
-            android:paddingLeft="4dp"
+            android:paddingLeft="12dp"
             android:paddingRight="12dp"
             android:text="@string/callRider"
             android:textAllCaps="false"
             android:textColor="@android:color/white"
-            android:textSize="@dimen/button_small_text_size"
             android:layout_marginLeft="@dimen/horizontal_margin"/>
 
     </LinearLayout>
@@ -73,7 +71,7 @@
         android:layout_height="@dimen/button_height"
         android:layout_gravity="center_horizontal"
         android:background="@drawable/rounded_button_blue"
-        android:drawableLeft="@drawable/ic_play"
+        android:drawableLeft="@drawable/start"
         android:drawablePadding="2dp"
         android:paddingLeft="60dp"
         android:paddingRight="40dp"
@@ -84,7 +82,7 @@
 
     <Button
         android:id="@+id/cancelRide"
-        android:layout_width="wrap_content"
+        android:layout_width="120dp"
         android:layout_height="@dimen/button_small_height"
         android:layout_marginVertical="@dimen/top_margin"
         android:layout_centerHorizontal="true"
@@ -92,6 +90,5 @@
         android:background="@drawable/rounded_button_grey"
         android:text="@string/cancelRide"
         android:textAllCaps="false"
-        android:textColor="@android:color/white"
-        android:textSize="@dimen/button_small_text_size"/>
+        android:textColor="@android:color/white"/>
 </LinearLayout>
