@@ -24,7 +24,7 @@
     <string name="url_terms_webview">https://developer.android.com/guide/webapps/webview</string>
 
     <!-- Map -->
-    <string name="google_maps_key">AIzaSyATzo3QgFAOI64arXpJB4jANMVK6eQ0UD4</string>
+    <string name="google_maps_key">AIzaSyD2viHGR2Rks56CJSU0kcg6SmxWHOq6vzM</string>
     <string name="driverVerfPending">Verification Pending</string>
     <string name="driverVerfPendingText">Verification Pending Text</string>
     <string name="dAvailability">Availability</string>
@@ -35,14 +35,15 @@
     <string name="dReady">Ready to take rides  </string>
     <string name="dContactSupport">Contact Support</string>
     <string name="rideRequest">Ride Request</string>
+    <string name="routeNum">Route #: </string>
     <string name="accept">Accept</string>
     <string name="reject">Reject</string>
     <string name="rideFound">Ride Found</string>
     <string name="startTrip">Start Trip</string>
     <string name="callRider">Call Rider</string>
     <string name="dCancelRide">Cancel Ride</string>
-    <string name="enterOTP">Enter Rider OTP</string>
-    <string name="dConfirmOTP">Confirm</string>
+    <string name="enterPin">Enter Rider PIN</string>
+    <string name="dConfirmPin">Confirm</string>
     <string name="dOnTrip">On Trip</string>
     <string name="endRide">End Ride</string>
     <string name="dPickup">Pickup</string>

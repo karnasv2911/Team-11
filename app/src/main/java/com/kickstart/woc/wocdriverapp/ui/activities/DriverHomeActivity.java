@@ -70,7 +70,7 @@ public class DriverHomeActivity extends AppCompatActivity
 
     private ExpandContractMapUtil expandContractMapUtil = new ExpandContractMapUtil();
     private FusedLocationProviderClient mFusedLocationClient;
-    private UserClient userClient = new UserClient();
+    private UserClient userClient;
     private FragmentUtils fragmentUtils = new FragmentUtils();
     private MapInputContainerEnum mapInputContainerEnum = MapInputContainerEnum.Unknown;
     private Location mUserLocation;
@@ -96,14 +96,14 @@ public class DriverHomeActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        userClient = (UserClient)getApplicationContext();
 
         if (checkMapServices()) {
             if (mLocationPermissionGranted) {
-                getUserDetails();
+                getLastKnownLocation();
             } else {
                 getLocationPermission();
             }
-            showFragment();
         }
     }
 
@@ -169,11 +169,6 @@ public class DriverHomeActivity extends AppCompatActivity
     }
 
     private void showFragment() {
-        User rider = userClient.getRiderDetails();
-        User driver = userClient.getDriverDetails();
-        Place place = Place.builder().setAddress("PayPal Office").build();
-        Log.d(TAG, place.getAddress());
-        rider.setDestinationPlace(place);
         onReplaceInputContainer(mapInputContainerEnum);
     }
 
@@ -265,7 +260,7 @@ public class DriverHomeActivity extends AppCompatActivity
         switch (requestCode) {
             case PERMISSIONS_REQUEST_ENABLE_GPS:
                 if (mLocationPermissionGranted) {
-                    getUserDetails();
+                    getLastKnownLocation();
                 } else {
                     getLocationPermission();
                 }
@@ -283,7 +278,7 @@ public class DriverHomeActivity extends AppCompatActivity
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mLocationPermissionGranted = true;
-            getUserDetails();
+            getLastKnownLocation();
         } else {
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
@@ -317,21 +312,6 @@ public class DriverHomeActivity extends AppCompatActivity
     }
 
     // Step 1: Get User Details
-    private void getUserDetails() {
-        if (mUserLocation == null) {
-            // Retrieve user details from db, mocked driver details are fetched below
-            User driverDetails = userClient.getDriverDetails();
-
-            // User details are set only once in the application, in driver app: user is driver
-            userClient.setUser(driverDetails);
-            getLastKnownLocation();
-
-        } else {
-            // Get the last known location
-            getLastKnownLocation();
-        }
-    }
-
     // Step 2: Get User Location
     private void getLastKnownLocation() {
         Log.d(TAG, "getLastKnownLocation: called.");
@@ -348,6 +328,7 @@ public class DriverHomeActivity extends AppCompatActivity
                                 mUserLocation.setLatitude(location.getLatitude());
                                 mUserLocation.setLongitude(location.getLongitude());
                                 saveUserLocation();
+                                showFragment();
                                 startLocationService();
                             }
                         }
@@ -358,20 +339,7 @@ public class DriverHomeActivity extends AppCompatActivity
 
     // Step 3: Save user location
     private void saveUserLocation() {
-        User driverDetails = userClient.getDriverDetails();
-        Address address = new Address(Locale.ENGLISH);
-        address.setLatitude(mUserLocation.getLatitude());
-        address.setLongitude(mUserLocation.getLongitude());
-        driverDetails.setSourceAddress(address);
-        driverDetails.setTimeStamp(userClient.getCurrentTimeStamp());
-        userClient.setUser(driverDetails);
-        Log.d(TAG, "saveUserLocation: " + driverDetails.toString());
-        showMarker();
-    }
-
-    // Step 4: Show Map
-    private void showMarker() {
-
+        userClient.saveUserLocation(mUserLocation.getLatitude(), mUserLocation.getLongitude());
     }
 
     // Step 5: Start Location Service
@@ -409,10 +377,6 @@ public class DriverHomeActivity extends AppCompatActivity
         driverHomeFragment.setArguments(bundle);
         fragmentUtils.replaceFragment(R.id.driver_home_fragment, TAG, getSupportFragmentManager(), driverHomeFragment);
     }
-
-//    public void onStartNavigation(NavigationListener navigationListener) {
-//        this.mNavigationListener = navigationListener;
-//    }
 
     @Override
     public void onMakePhoneCall(MapInputContainerEnum mapInputContainerEnum, String number) {

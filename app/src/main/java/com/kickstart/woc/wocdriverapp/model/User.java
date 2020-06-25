@@ -1,10 +1,6 @@
 package com.kickstart.woc.wocdriverapp.model;
 
 import android.location.Address;
-import android.os.Parcel;
-import android.os.Parcelable;
-
-import com.google.android.libraries.places.api.model.Place;
 
 import java.io.Serializable;
 
@@ -12,31 +8,25 @@ public class User implements Serializable {
 
     private String id;
     private boolean isVerified;
-    private boolean isAvailable;
     private String name;
     private String email;
     private String phone;
     private Integer image;
     private double rating;
-    private Address sourceAddress;
-    private Address destinationAddress;
-    private Place sourcePlace;
-    private Place destinationPlace;
+    private String source;
+    private String destination;
     private String timeStamp;
 
-    public User(String id, boolean isVerified, boolean isAvailable, String name, String email, String phone, Integer image, double rating, Address sourceAddress, Address destinationAddress, Place sourcePlace, Place destinationPlace, String timeStamp) {
+    public User(String id, boolean isVerified, String name, String email, String phone, Integer image, double rating, String source, String destination, String timeStamp) {
         this.id = id;
         this.isVerified = isVerified;
-        this.isAvailable = isAvailable;
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.image = image;
         this.rating = rating;
-        this.sourceAddress = sourceAddress;
-        this.destinationAddress = destinationAddress;
-        this.sourcePlace = sourcePlace;
-        this.destinationPlace = destinationPlace;
+        this.source = source;
+        this.destination = destination;
         this.timeStamp = timeStamp;
     }
 
@@ -54,14 +44,6 @@ public class User implements Serializable {
 
     public void setVerified(boolean verified) {
         isVerified = verified;
-    }
-
-    public boolean isAvailable() {
-        return isAvailable;
-    }
-
-    public void setAvailable(boolean available) {
-        isAvailable = available;
     }
 
     public String getName() {
@@ -104,36 +86,20 @@ public class User implements Serializable {
         this.rating = rating;
     }
 
-    public Address getSourceAddress() {
-        return sourceAddress;
+    public String getSource() {
+        return source;
     }
 
-    public void setSourceAddress(Address sourceAddress) {
-        this.sourceAddress = sourceAddress;
+    public void setSource(String source) {
+        this.source = source;
     }
 
-    public Address getDestinationAddress() {
-        return destinationAddress;
+    public String getDestination() {
+        return destination;
     }
 
-    public void setDestinationAddress(Address destinationAddress) {
-        this.destinationAddress = destinationAddress;
-    }
-
-    public Place getSourcePlace() {
-        return sourcePlace;
-    }
-
-    public void setSourcePlace(Place sourcePlace) {
-        this.sourcePlace = sourcePlace;
-    }
-
-    public Place getDestinationPlace() {
-        return destinationPlace;
-    }
-
-    public void setDestinationPlace(Place destinationPlace) {
-        this.destinationPlace = destinationPlace;
+    public void setDestination(String destination) {
+        this.destination = destination;
     }
 
     public String getTimeStamp() {
@@ -149,16 +115,13 @@ public class User implements Serializable {
         return "User{" +
                 "id='" + id + '\'' +
                 ", isVerified=" + isVerified +
-                ", isAvailable=" + isAvailable +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", phone='" + phone + '\'' +
                 ", image=" + image +
                 ", rating=" + rating +
-                ", sourceAddress=" + sourceAddress +
-                ", destinationAddress=" + destinationAddress +
-                ", sourcePlace=" + sourcePlace +
-                ", destinationPlace=" + destinationPlace +
+                ", source='" + source + '\'' +
+                ", destination='" + destination + '\'' +
                 ", timeStamp='" + timeStamp + '\'' +
                 '}';
     }

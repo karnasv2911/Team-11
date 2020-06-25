@@ -11,73 +11,67 @@ import android.widget.EditText;
 import androidx.fragment.app.Fragment;
 
 import com.kickstart.woc.wocdriverapp.R;
-import com.kickstart.woc.wocdriverapp.model.User;
 import com.kickstart.woc.wocdriverapp.ui.listeners.PhoneCallListener;
 import com.kickstart.woc.wocdriverapp.ui.listeners.ReplaceInputContainerListener;
-import com.kickstart.woc.wocdriverapp.utils.FragmentUtils;
 import com.kickstart.woc.wocdriverapp.utils.WocConstants;
 import com.kickstart.woc.wocdriverapp.utils.map.MapInputContainerEnum;
 import com.kickstart.woc.wocdriverapp.utils.map.UserClient;
 
 
-public class DriverEnterRiderOTPFragment extends Fragment implements View.OnClickListener {
+public class DriverEnterRiderPinFragment extends Fragment implements View.OnClickListener {
 
-    private static final String TAG = DriverEnterRiderOTPFragment.class.getSimpleName();
+    private static final String TAG = DriverEnterRiderPinFragment.class.getSimpleName();
 
-    private User driver;
-    private User rider;
-    private UserClient userClient = new UserClient();
-    private FragmentUtils fragmentUtils = new FragmentUtils();
+    private UserClient userClient;
     private ReplaceInputContainerListener replaceInputContainerListener;
     private PhoneCallListener phoneCallListener;
 
-    private EditText mETOTP1;
-    private EditText mETOTP2;
-    private EditText mETOTP3;
-    private EditText mETOTP4;
+    private EditText mETPin1;
+    private EditText mETPin2;
+    private EditText mETPin3;
+    private EditText mETPin4;
     private Button mConfirmButton;
     private Button mContactSupportButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        driver = userClient.getDriverDetails();
-        rider = userClient.getRiderDetails();
+        userClient = (UserClient) getContext().getApplicationContext();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_driver_enter_rider_otp, container, false);
-        mETOTP1 = view.findViewById(R.id.etOPT1);
-        mETOTP1.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        View view = inflater.inflate(R.layout.fragment_driver_enter_rider_pin, container, false);
+        mETPin1 = view.findViewById(R.id.etOPT1);
+        mETPin1.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 changeEditTextBorder(v);
             }
         });
-        mETOTP2 = view.findViewById(R.id.etOPT2);
-        mETOTP2.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        mETPin2 = view.findViewById(R.id.etOPT2);
+        mETPin2.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 changeEditTextBorder(v);
             }
         });
-        mETOTP3 = view.findViewById(R.id.etOPT3);
-        mETOTP3.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        mETPin3 = view.findViewById(R.id.etOPT3);
+        mETPin3.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 changeEditTextBorder(v);
             }
         });
-        mETOTP4 = view.findViewById(R.id.etOPT4);
-        mETOTP4.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        mETPin4 = view.findViewById(R.id.etOPT4);
+        mETPin4.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 changeEditTextBorder(v);
             }
         });
-        mConfirmButton = view.findViewById(R.id.btnConfirmOTP);
+        mConfirmButton = view.findViewById(R.id.btnConfirmPin);
         mContactSupportButton = view.findViewById(R.id.btnContactSupport);
         mConfirmButton.setOnClickListener(this::onClick);
         mContactSupportButton.setOnClickListener(this::onClick);
@@ -110,25 +104,25 @@ public class DriverEnterRiderOTPFragment extends Fragment implements View.OnClic
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.etOPT1:
-                mETOTP1.setBackgroundResource(0);
-                mETOTP1.setBackgroundResource(R.drawable.bg_rounded_highlighted_edittext);
+                mETPin1.setBackgroundResource(0);
+                mETPin1.setBackgroundResource(R.drawable.bg_rounded_highlighted_edittext);
                 break;
             case R.id.etOPT2:
-                mETOTP2.setBackground(getResources().getDrawable(R.drawable.bg_rounded_highlighted_edittext));
+                mETPin2.setBackground(getResources().getDrawable(R.drawable.bg_rounded_highlighted_edittext));
                 break;
             case R.id.etOPT3:
-                mETOTP3.setBackground(getResources().getDrawable(R.drawable.bg_rounded_highlighted_edittext));
+                mETPin3.setBackground(getResources().getDrawable(R.drawable.bg_rounded_highlighted_edittext));
                 break;
             case R.id.etOPT4:
-                mETOTP4.setBackground(getResources().getDrawable(R.drawable.bg_rounded_highlighted_edittext));
+                mETPin4.setBackground(getResources().getDrawable(R.drawable.bg_rounded_highlighted_edittext));
                 break;
-            case R.id.btnConfirmOTP:
-                boolean isValidOTP = userClient.sendOTPDetails(mETOTP1.getText().toString(), mETOTP2.getText().toString(),
-                        mETOTP3.getText().toString(), mETOTP4.getText().toString());
+            case R.id.btnConfirmPin:
+                boolean isValidPin = userClient.sendPinDetails(mETPin1.getText().toString(), mETPin2.getText().toString(),
+                        mETPin3.getText().toString(), mETPin4.getText().toString());
                 replaceInputContainerListener.onReplaceInputContainer(MapInputContainerEnum.DriverOnTripFragment);
                 break;
             case R.id.btnContactSupport:
-                phoneCallListener.onMakePhoneCall(MapInputContainerEnum.DriverEnterRiderOTPFragment, WocConstants.CONTACT_SUPPORT);
+                phoneCallListener.onMakePhoneCall(MapInputContainerEnum.DriverEnterRiderPinFragment, WocConstants.CONTACT_SUPPORT);
                 break;
         }
     }

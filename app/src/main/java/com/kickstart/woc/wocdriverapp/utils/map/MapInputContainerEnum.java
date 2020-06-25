@@ -7,7 +7,7 @@ public enum MapInputContainerEnum implements Serializable {
     DriverVerificationFragment,
     DriverAvailabilityFragment,
     DriverRideFoundFragment,
-    DriverEnterRiderOTPFragment,
+    DriverEnterRiderPinFragment,
     DriverOnTripFragment,
     DriverTripSummaryFragment,
     Unknown;

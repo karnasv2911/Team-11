@@ -1,6 +1,8 @@
 package com.kickstart.woc.wocdriverapp.ui.fragments;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,13 +10,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.kickstart.woc.wocdriverapp.R;
-import com.kickstart.woc.wocdriverapp.model.User;
 import com.kickstart.woc.wocdriverapp.ui.listeners.ReplaceInputContainerListener;
-import com.kickstart.woc.wocdriverapp.utils.FragmentUtils;
 import com.kickstart.woc.wocdriverapp.utils.map.MapInputContainerEnum;
 import com.kickstart.woc.wocdriverapp.utils.map.UserClient;
 
@@ -22,10 +24,7 @@ public class DriverOnTripFragment extends Fragment implements View.OnClickListen
 
     private static final String TAG = DriverOnTripFragment.class.getSimpleName();
 
-    private User driver;
-    private User rider;
-    private UserClient userClient = new UserClient();
-    private FragmentUtils fragmentUtils = new FragmentUtils();
+    private UserClient userClient;
     private ReplaceInputContainerListener replaceInputContainerListener;
 
     private Button mEndRideButton;
@@ -33,8 +32,7 @@ public class DriverOnTripFragment extends Fragment implements View.OnClickListen
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        driver = userClient.getDriverDetails();
-        rider = userClient.getRiderDetails();
+        userClient = (UserClient) getContext().getApplicationContext();
     }
 
     @Override
@@ -43,11 +41,17 @@ public class DriverOnTripFragment extends Fragment implements View.OnClickListen
         View view = inflater.inflate(R.layout.fragment_driver_on_trip, container, false);
         TextView mSource = view.findViewById(R.id.sourceTV);
         TextView mDestination = view.findViewById(R.id.destinationTV);
-        mSource.setCompoundDrawables(null, null, null, null);
-        mDestination.setCompoundDrawables(null, null, null, null);
+        mSource.setText(userClient.getSource());
+        mDestination.setText(userClient.getDestination());
         mEndRideButton = view.findViewById(R.id.endRide);
         mEndRideButton.setOnClickListener(this::onClick);
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        navigateToGoogleMaps();
     }
 
     @Override
@@ -101,5 +105,11 @@ public class DriverOnTripFragment extends Fragment implements View.OnClickListen
             }
         });
         alert.show();
+    }
+
+    private void navigateToGoogleMaps() {
+        Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
+                Uri.parse("google.navigation:q=" + userClient.getDestination()));
+        startActivity(intent);
     }
 }

@@ -37,8 +37,7 @@ public class DriverTripSummaryFragment extends Fragment implements View.OnClickL
 
     private static final String TAG = DriverTripSummaryFragment.class.getSimpleName();
 
-    private User driver;
-    private UserClient userClient = new UserClient();
+    private UserClient userClient;
     private ReplaceInputContainerListener replaceInputContainerListener;
     private PhoneCallListener phoneCallListener;
 
@@ -53,7 +52,7 @@ public class DriverTripSummaryFragment extends Fragment implements View.OnClickL
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        driver = userClient.getDriverDetails();
+        userClient = (UserClient)getContext().getApplicationContext();
     }
 
     @Override
@@ -81,7 +80,9 @@ public class DriverTripSummaryFragment extends Fragment implements View.OnClickL
     private void populateTripSummary() {
         Map<String, String> map = userClient.getTripSummary();
         mSourceTV.setText(map.get("source"));
+        mSourceTV.setSelected(true);
         mDestinationTV.setText(map.get("destination"));
+        mDestinationTV.setSelected(true);
         mDistanceTV.setText(map.get("distance"));
         mTimeTV.setText(map.get("time"));
         mAmountTV.setText(getString(R.string.Rs) + map.get("amount"));

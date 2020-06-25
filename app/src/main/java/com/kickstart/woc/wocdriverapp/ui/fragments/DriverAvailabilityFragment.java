@@ -1,7 +1,7 @@
 package com.kickstart.woc.wocdriverapp.ui.fragments;
 
 import android.content.Context;
-import android.graphics.drawable.ColorDrawable;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.LayoutInflater;
@@ -14,11 +14,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 
 import com.kickstart.woc.wocdriverapp.R;
-import com.kickstart.woc.wocdriverapp.model.User;
 import com.kickstart.woc.wocdriverapp.ui.listeners.PhoneCallListener;
 import com.kickstart.woc.wocdriverapp.ui.listeners.ReplaceInputContainerListener;
 import com.kickstart.woc.wocdriverapp.utils.WocConstants;
@@ -29,9 +27,7 @@ public class DriverAvailabilityFragment extends Fragment implements View.OnClick
 
     private static final String TAG = DriverAvailabilityFragment.class.getSimpleName();
 
-    private User driver;
-    private User rider;
-    private UserClient userClient = new UserClient();
+    private UserClient userClient;
     private ReplaceInputContainerListener replaceInputContainerListener;
     private PhoneCallListener phoneCallListener;
 
@@ -42,7 +38,7 @@ public class DriverAvailabilityFragment extends Fragment implements View.OnClick
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        driver = userClient.getDriverDetails();
+        userClient = (UserClient)getContext().getApplicationContext();
     }
 
     @Override
@@ -56,7 +52,7 @@ public class DriverAvailabilityFragment extends Fragment implements View.OnClick
         mContactSupportButton.setOnClickListener(this::onClick);
         mSwitchCompat.setOnClickListener(this::onClick);
 
-        if (driver.isAvailable()) {
+        if (userClient.isDriverAvailable()) {
             mSwitchCompat.setChecked(true);
             mAvailabilityText.setText(getString(R.string.dOnDuty));
             mAvailabilityText.setBackground(getResources().getDrawable(R.drawable.blue_border_on));
@@ -68,9 +64,9 @@ public class DriverAvailabilityFragment extends Fragment implements View.OnClick
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (driver.isAvailable()) {
-            rider = userClient.notifyRiderRequest();
-            if (rider != null) {
+        if (userClient.isDriverAvailable()) {
+            userClient.sendRideRequest();
+            if (!userClient.isRideAlertAccepted() && userClient.getRideAlert()) {
                 showAlertToAcceptRide();
             }
         }
@@ -95,10 +91,12 @@ public class DriverAvailabilityFragment extends Fragment implements View.OnClick
         switch (view.getId()) {
             case R.id.switchButton:
                 if (mSwitchCompat.isChecked()) {
+                    userClient.setDriverAvailable(true);
                     mAvailabilityText.setText(getString(R.string.dOnDuty));
                     mAvailabilityText.setBackground(getResources().getDrawable(R.drawable.blue_border_on));
                     mAvailabilityText.setTextColor(getResources().getColor(R.color.white));
                 } else {
+                    userClient.setDriverAvailable(false);
                     mAvailabilityText.setText(getString(R.string.dOffDuty));
                     mAvailabilityText.setBackground(getResources().getDrawable(R.drawable.blue_border_off));
                     mAvailabilityText.setTextColor(getResources().getColor(R.color.blueTrack));
@@ -125,7 +123,7 @@ public class DriverAvailabilityFragment extends Fragment implements View.OnClick
             @Override
             public void onFinish() {
                 tvTimer.setText("0");
-                userClient.cancelRideRequest();
+                userClient.cancelRideAlert();
             }
         };
         timer.start();
@@ -138,13 +136,14 @@ public class DriverAvailabilityFragment extends Fragment implements View.OnClick
             @Override
             public void onClick(View view) {
                 alert.dismiss();
+                userClient.acceptRideAlert();
                 replaceInputContainerListener.onReplaceInputContainer(MapInputContainerEnum.DriverRideFoundFragment);
             }
         });
         mRejectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                userClient.cancelRideRequest();
+                userClient.cancelRideAlert();
                 alert.dismiss();
             }
         });

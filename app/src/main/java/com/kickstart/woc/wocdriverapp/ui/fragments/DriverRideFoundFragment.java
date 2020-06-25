@@ -1,12 +1,9 @@
 package com.kickstart.woc.wocdriverapp.ui.fragments;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Address;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -14,16 +11,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.kickstart.woc.wocdriverapp.R;
 import com.kickstart.woc.wocdriverapp.model.User;
 import com.kickstart.woc.wocdriverapp.ui.listeners.PhoneCallListener;
 import com.kickstart.woc.wocdriverapp.ui.listeners.ReplaceInputContainerListener;
-import com.kickstart.woc.wocdriverapp.utils.WocConstants;
 import com.kickstart.woc.wocdriverapp.utils.map.MapInputContainerEnum;
 import com.kickstart.woc.wocdriverapp.utils.map.UserClient;
 
@@ -31,9 +24,8 @@ public class DriverRideFoundFragment extends Fragment implements View.OnClickLis
 
     private static final String TAG = DriverRideFoundFragment.class.getSimpleName();
 
-    private User driver;
+    private UserClient userClient;
     private User rider;
-    private UserClient userClient = new UserClient();
     private ReplaceInputContainerListener replaceInputContainerListener;
     private PhoneCallListener phoneCallListener;
 
@@ -45,7 +37,7 @@ public class DriverRideFoundFragment extends Fragment implements View.OnClickLis
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        driver = userClient.getDriverDetails();
+        userClient = (UserClient) getContext().getApplicationContext();
         rider = userClient.getRiderDetails();
     }
 
@@ -88,17 +80,19 @@ public class DriverRideFoundFragment extends Fragment implements View.OnClickLis
                 phoneCallListener.onMakePhoneCall(MapInputContainerEnum.DriverRideFoundFragment, rider.getPhone());
                 break;
             case R.id.startTrip:
-                replaceInputContainerListener.onReplaceInputContainer(MapInputContainerEnum.DriverEnterRiderOTPFragment);
+                userClient.startTrip();
+                replaceInputContainerListener.onReplaceInputContainer(MapInputContainerEnum.DriverEnterRiderPinFragment);
                 break;
             case R.id.cancelRide:
+                userClient.cancelRideRequest();
                 replaceInputContainerListener.onReplaceInputContainer(MapInputContainerEnum.DriverAvailabilityFragment);
                 break;
         }
     }
 
     private void navigateToGoogleMaps() {
-        Address source = rider.getSourceAddress();
-        Address destination = rider.getDestinationAddress();
+        Address source = null; //rider.getSourceAddress();
+        Address destination = null; //rider.getDestinationAddress();
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
