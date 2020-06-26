@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -108,8 +109,13 @@ public class DriverOnTripFragment extends Fragment implements View.OnClickListen
     }
 
     private void navigateToGoogleMaps() {
-        Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
-                Uri.parse("google.navigation:q=" + userClient.getDestination()));
-        startActivity(intent);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
+                        Uri.parse("google.navigation:q=" + userClient.getDestination()));
+                startActivity(intent);
+            }
+        }, 1000);
     }
 }

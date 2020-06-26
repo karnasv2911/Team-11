@@ -26,6 +26,7 @@ public class UserClient extends Application {
     private boolean isRiderNotificationReceived;
     private boolean isRideAlertAccepted;
     private boolean isTripStarted;
+    private String[] riderPin;
 
     /* Start Map Screen */
     // N/W calls
@@ -45,6 +46,7 @@ public class UserClient extends Application {
 
     // Retrieve user details from db, mocked rider details are fetched below
     public User getRiderDetails() {
+        riderPin = new String[] {"1", "2", "3", "4"};
         return new User("riderId", true, "riderName", "rider@gmail.com", "1234567890", R.drawable.ic_rider_pin, 4.5, source, destination, getCurrentTimeStamp());
     }
 
@@ -106,7 +108,7 @@ public class UserClient extends Application {
     // When push notification received, update rider
     public boolean getRideAlert() {
         // Get rider details from notification and set in getRiderDetails
-//        isRiderNotificationReceived = true;
+        isRiderNotificationReceived = true;
         return isRiderNotificationReceived;
     }
 
@@ -139,8 +141,15 @@ public class UserClient extends Application {
     /* End Driver Found Screen*/
 
     /* Start Driver Enter Rider Pin Screen */
-    // N/W call to send Pin
-    public boolean sendPinDetails(String otp1, String otp2, String otp3, String otp4) {
+    // Pin fetched when rider details are sent along with notification, this avoids N/W call
+    public boolean isValidPin(String otp1, String otp2, String otp3, String otp4) {
+        String[] arr = {otp1, otp2, otp3, otp4};
+        for (int i = 0; i < 4; i++) {
+            if (!riderPin[i].equalsIgnoreCase(arr[i])) {
+                isTripStarted = false;
+                return false;
+            }
+        }
         isTripStarted = true;
         return true;
     }

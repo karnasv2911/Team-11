@@ -2,7 +2,6 @@ package com.kickstart.woc.wocdriverapp.ui.fragments;
 
 import android.content.Context;
 import android.content.Intent;
-import android.location.Address;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -91,15 +90,12 @@ public class DriverRideFoundFragment extends Fragment implements View.OnClickLis
     }
 
     private void navigateToGoogleMaps() {
-        Address source = null; //rider.getSourceAddress();
-        Address destination = null; //rider.getDestinationAddress();
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                String uri = "http://maps.google.com/maps?saddr=" + source.getLatitude() + "," + source.getLongitude() + "&daddr=" + destination.getLatitude() + "," + destination.getLongitude();
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                mapIntent.setPackage("com.google.android.apps.maps");
-                startActivity(mapIntent);
+                Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
+                        Uri.parse("google.navigation:q=" + userClient.getSource()));
+                startActivity(intent);
             }
         }, 1000);
     }

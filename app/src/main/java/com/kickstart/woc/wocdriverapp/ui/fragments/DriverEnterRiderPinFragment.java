@@ -1,13 +1,16 @@
 package com.kickstart.woc.wocdriverapp.ui.fragments;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.kickstart.woc.wocdriverapp.R;
@@ -117,13 +120,38 @@ public class DriverEnterRiderPinFragment extends Fragment implements View.OnClic
                 mETPin4.setBackground(getResources().getDrawable(R.drawable.bg_rounded_highlighted_edittext));
                 break;
             case R.id.btnConfirmPin:
-                boolean isValidPin = userClient.sendPinDetails(mETPin1.getText().toString(), mETPin2.getText().toString(),
+                boolean isValidPin = userClient.isValidPin(mETPin1.getText().toString(), mETPin2.getText().toString(),
                         mETPin3.getText().toString(), mETPin4.getText().toString());
-                replaceInputContainerListener.onReplaceInputContainer(MapInputContainerEnum.DriverOnTripFragment);
+                if (!isValidPin) {
+                    showErrorAlert("Please enter a valid pin.");
+                } else {
+                    replaceInputContainerListener.onReplaceInputContainer(MapInputContainerEnum.DriverOnTripFragment);
+                }
                 break;
             case R.id.btnContactSupport:
                 phoneCallListener.onMakePhoneCall(MapInputContainerEnum.DriverEnterRiderPinFragment, WocConstants.CONTACT_SUPPORT);
                 break;
         }
+    }
+
+    private void showErrorAlert(String errorMessage) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this.getContext());
+        LayoutInflater factory = LayoutInflater.from(getContext());
+        final View view = factory.inflate(R.layout.layout_warning, null);
+        TextView mErrorText = view.findViewById(R.id.errorMessage);
+        if (errorMessage == null || errorMessage.length() == 0) {
+            mErrorText.setText(WocConstants.ERROR_MESSAGE);
+        } else {
+            mErrorText.setText(errorMessage);
+        }
+        builder.setView(view);
+        builder.setCancelable(true)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, final int id) {
+                        dialog.dismiss();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 }
