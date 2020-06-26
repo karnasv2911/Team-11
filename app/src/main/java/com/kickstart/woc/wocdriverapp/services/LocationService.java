@@ -8,7 +8,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Address;
 import android.location.Location;
 import android.os.Build;
 import android.os.IBinder;
@@ -24,17 +23,14 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.kickstart.woc.wocdriverapp.model.User;
 import com.kickstart.woc.wocdriverapp.utils.map.UserClient;
-
-import java.util.Locale;
 
 public class LocationService extends Service {
 
     private static final String TAG = "LocationService";
 
     private FusedLocationProviderClient mFusedLocationClient;
-    private UserClient userClient = new UserClient();
+    private UserClient userClient;
     private final static long UPDATE_INTERVAL = 4 * 1000;  /* 4 secs */
     private final static long FASTEST_INTERVAL = 2000; /* 2 sec */
 
@@ -48,6 +44,7 @@ public class LocationService extends Service {
     public void onCreate() {
         super.onCreate();
 
+        userClient = (UserClient) getApplicationContext();
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         if (Build.VERSION.SDK_INT >= 26) {
@@ -100,25 +97,25 @@ public class LocationService extends Service {
                         Location location = locationResult.getLastLocation();
 
                         if (location != null) {
-                            saveUserLocation(location);
+                            userClient.saveUserLocation(location.getLatitude(), location.getLongitude());
                         }
                     }
                 },
                 Looper.myLooper()); // Looper.myLooper tells this to repeat forever until thread is destroyed
     }
 
-    private void saveUserLocation(Location location) {
-        try {
-            User driver = userClient.getDriverDetails();
-            Address address = new Address(Locale.ENGLISH);
-            address.setLatitude(location.getLatitude());
-            address.setLongitude(location.getLongitude());
-            driver.setSourceAddress(address);
-            driver.setTimeStamp(userClient.getCurrentTimeStamp());
-            userClient.setUser(driver);
-        } catch (NullPointerException npe) {
-            Log.e(TAG, "saveUserLocation: userClient is null, stopping location service :: " + npe.getMessage());
-            stopSelf();
-        }
-    }
+//    private void saveUserLocation(Location location) {
+//        try {
+//            User driver = userClient.getDriverDetails();
+//            Address address = new Address(Locale.ENGLISH);
+//            address.setLatitude(location.getLatitude());
+//            address.setLongitude(location.getLongitude());
+//            driver.setSource(address);
+//            driver.setTimeStamp(userClient.getCurrentTimeStamp());
+//            userClient.setUser(driver);
+//        } catch (NullPointerException npe) {
+//            Log.e(TAG, "saveUserLocation: userClient is null, stopping location service :: " + npe.getMessage());
+//            stopSelf();
+//        }
+//    }
 }

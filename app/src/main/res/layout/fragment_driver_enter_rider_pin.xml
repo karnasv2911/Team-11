@@ -20,27 +20,27 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
-            android:text="@string/enterOTP"
+            android:text="@string/enterPin"
             android:textColor="@android:color/white"
             android:textSize="16sp" />
 
     </LinearLayout>
 
     <include
-        android:id="@+id/view_otp_input_container"
+        android:id="@+id/view_pin_input_container"
         layout="@layout/view_otp_input_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         />
 
     <Button
-        android:id="@+id/btnConfirmOTP"
+        android:id="@+id/btnConfirmPin"
         android:layout_width="@dimen/button_width"
         android:layout_height="@dimen/button_height"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="@dimen/vertical_margin"
         android:background="@drawable/rounded_button_blue"
-        android:text="@string/dConfirmOTP"
+        android:text="@string/dConfirmPin"
         android:textAllCaps="false"
         android:textColor="@android:color/white"
         android:textSize="@dimen/button_text_size"/>

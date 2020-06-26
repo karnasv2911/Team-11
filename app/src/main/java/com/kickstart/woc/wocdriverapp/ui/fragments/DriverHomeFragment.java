@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 
 import com.kickstart.woc.wocdriverapp.R;
-import com.kickstart.woc.wocdriverapp.model.User;
 import com.kickstart.woc.wocdriverapp.utils.FragmentUtils;
 import com.kickstart.woc.wocdriverapp.utils.map.MapInputContainerEnum;
 import com.kickstart.woc.wocdriverapp.utils.map.UserClient;
@@ -21,24 +20,22 @@ public class DriverHomeFragment extends Fragment {
     private static final String TAG = DriverHomeFragment.class.getSimpleName();
 
     private FragmentUtils fragmentUtils = new FragmentUtils();
-    private UserClient userClient = new UserClient();
-    private User driver;
+    private UserClient userClient;
     private MapInputContainerEnum mapInputContainerEnum;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        driver = userClient.getDriverDetails();
-
+        userClient = (UserClient) getContext().getApplicationContext();
         if (getArguments() != null) {
             String enumKey = (String) getArguments().get(getString(R.string.intent_input_container));
             mapInputContainerEnum = Enum.valueOf(MapInputContainerEnum.class, enumKey);
         }
         if (mapInputContainerEnum.compareTo(MapInputContainerEnum.Unknown) == 0) {
-            if (!driver.isVerified()) {
-                mapInputContainerEnum = MapInputContainerEnum.DriverVerificationFragment;
-            } else {
+            if (userClient.isDriverVerified()) {
                 mapInputContainerEnum = MapInputContainerEnum.DriverAvailabilityFragment;
+            } else {
+                mapInputContainerEnum = MapInputContainerEnum.DriverVerificationFragment;
             }
         }
     }
@@ -66,9 +63,9 @@ public class DriverHomeFragment extends Fragment {
                 fragmentUtils.replaceFragment(R.id.map_view_container, TAG, getFragmentManager(), new MapViewFragment());
                 fragmentUtils.replaceFragment(R.id.input_view_container, TAG, getFragmentManager(), new DriverRideFoundFragment());
                 break;
-            case DriverEnterRiderOTPFragment:
+            case DriverEnterRiderPinFragment:
                 fragmentUtils.replaceFragment(R.id.map_view_container, TAG, getFragmentManager(), new MapViewFragment());
-                fragmentUtils.replaceFragment(R.id.input_view_container, TAG, getFragmentManager(), new DriverEnterRiderOTPFragment());
+                fragmentUtils.replaceFragment(R.id.input_view_container, TAG, getFragmentManager(), new DriverEnterRiderPinFragment());
                 break;
             case DriverOnTripFragment:
                 fragmentUtils.replaceFragment(R.id.map_view_container, TAG, getFragmentManager(), new MapViewFragment());

@@ -1,65 +1,61 @@
 package com.kickstart.woc.wocdriverapp.utils.map;
 
-import android.location.Address;
-import android.util.Log;
+import android.app.Application;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.libraries.places.api.model.Place;
-import com.kickstart.woc.wocdriverapp.model.ClusterMarker;
-import com.kickstart.woc.wocdriverapp.model.User;
 import com.kickstart.woc.wocdriverapp.R;
+import com.kickstart.woc.wocdriverapp.model.User;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
-/*
-Driver app shows current driver location, mock rider location
-Rider app shows current rider location, mock driver location
-*/
-public class UserClient {
+public class UserClient extends Application {
 
     private static final String TAG = UserClient.class.getSimpleName();
-    private User user = null;
+    private String source = "Airport Road, Vaikuntam Layout, Lakshminarayana Pura, BEML Layout, Marathahalli, Bengaluru, Karnataka, India";
+    private String destination = "Adarsh Nagar Road No 2, West Balaji Hill Colony, Adarsh Nagar, Uppal, Hyderabad, Telangana, India";
+    private LatLng driverLatLng;
+    private String distance; // = "12 km";
+    private String time; // = "35 min";
+    private String amount = "120";
+    private boolean isLocationServiceable;
+    private boolean isDriverAvailable = true;
+    private boolean isInWocEnabledLocation;
+    private boolean isRiderNotificationReceived;
+    private boolean isRideAlertAccepted;
+    private boolean isTripStarted;
+    private String[] riderPin;
 
-    public User getUser() {
-        return user;
+    /* Start Map Screen */
+    // N/W calls
+    public void init() {
+        /*
+        1. Get driver details and set in getDriverDetails
+        2. Get list of WocEnabled locations and update in setInWocEnabledLocation
+         */
+        setInWocEnabledLocation(true);
+
     }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
-
+    // Retrieve user details from db, mocked driver details are fetched below
     public User getDriverDetails() {
-        return new User("driverId", true, true, "driverName", "driver@gmail.com", "1234567890", R.drawable.ic_driver_pin, 4.5, getSourceAddress(), null, null, null, getCurrentTimeStamp());
+        return new User("driverId", true, "driverName", "driver@gmail.com", "1234567890", R.drawable.ic_driver_pin, 4.5, source, null, getCurrentTimeStamp());
     }
 
+    // Retrieve user details from db, mocked rider details are fetched below
     public User getRiderDetails() {
-        return new User("riderId", true, true, "riderName", "rider@gmail.com", "1234567890", R.drawable.ic_rider_pin, 4.5, getSourceAddress(), getDestinationAddress(), null, null, getCurrentTimeStamp());
+        riderPin = new String[] {"1", "2", "3", "4"};
+        return new User("riderId", true, "riderName", "rider@gmail.com", "1234567890", R.drawable.ic_rider_pin, 4.5, source, destination, getCurrentTimeStamp());
     }
 
-    public void setUserVerified(boolean isVerified) {
-        user.setVerified(isVerified);
+    public void setInWocEnabledLocation(boolean isInWocEnabledLocation) {
+        this.isInWocEnabledLocation = isInWocEnabledLocation;
     }
 
-    public boolean getUserVerified() {
-        return user.isVerified();
-    }
-
-    public Address getSourceAddress() {
-        Address sourceAddress = new Address(Locale.ENGLISH);
-        sourceAddress.setLatitude(12.9220);
-        sourceAddress.setLongitude(77.6803);
-        return sourceAddress;
-    }
-
-    public Address getDestinationAddress() {
-        Address destinationAddress = new Address(Locale.ENGLISH);
-        destinationAddress.setLatitude(13.1986);
-        destinationAddress.setLongitude(77.7066);
-        return destinationAddress;
+    public boolean isInWocEnabledLocation() {
+        return isInWocEnabledLocation;
     }
 
     public String getCurrentTimeStamp() {
@@ -68,76 +64,111 @@ public class UserClient {
         return sdf.format(timestamp);
     }
 
-    public ClusterMarker getUserClusterMarker(User user) {
-        Address address = user.getSourceAddress();
-        ClusterMarker userClusterMarker = new ClusterMarker(
-                new LatLng(address.getLatitude(), address.getLongitude()),
-                user.getName(),
-                user.getId(),
-                user.getImage(),
-                user
-        );
-        return userClusterMarker;
+    // N/W call: driver is able to access map and is in wocEnabledLocation
+    public void setLocationServiceable(boolean isLocationServiceable) {
+        this.isLocationServiceable = isLocationServiceable;
     }
 
-    public LatLng getUpdatedDriverLatLng(int flag) {
-        if (flag % 2 == 0) {
-            // paypal
-            Log.d(TAG, "getUpdatedDriverLatLng: PayPal");
-            return new LatLng(
-                    12.9220, 77.6803
-            );
-        } else {
-            // malleshwaram
-            Log.d(TAG, "getUpdatedDriverLatLng: Malleshwaram");
-            return new LatLng(
-                    13.0055, 77.5692
-            );
-        }
+    // N/W call Save user location
+    public void saveUserLocation(double lat, double lng) {
+        User driverDetails = getDriverDetails();
+        driverLatLng = new LatLng(lat, lng);
+        driverDetails.setTimeStamp(getCurrentTimeStamp());
+        // N/W call to update driver location;
     }
 
-    // Stadium
-    public LatLng getUpdatedRiderLatLng(int flag) {
-        if (flag % 2 == 0) {
-            // grandcity
-            Log.d(TAG, "getUpdatedRiderLatLng: Bellandur");
-            return new LatLng(
-                    12.9226, 77.6954
-            );
-        } else {
-            // Bangalore Palace
-            Log.d(TAG, "getUpdatedRiderLatLng: Bangalore Palace");
-            return new LatLng(
-                    12.9988, 77.5921
-            );
-        }
+    public LatLng getDriverLatLng() {
+        return driverLatLng;
     }
 
-    // N/W call if not servicable in places, give error
-    public boolean isLocationServicable(Place place) {
-        return true;
-    }
+    /* End Map Screen */
 
+    /* Start Driver Verification Screen */
+    public boolean isDriverVerified() {
+        return getDriverDetails().isVerified();
+    }
+    /* End Driver Verification Screen */
+
+    /* Start Driver Availability Screen*/
     // N/W call to accept rides, notify driver when ride appears
-    public User notifyRiderRequest() {
-        return getRiderDetails();
+    public void setDriverAvailable(boolean isDriverAvailable) {
+        this.isDriverAvailable = isDriverAvailable;
+        // default behavior: is available ?
     }
 
-    // N/W call to send OTP
-    public boolean sendOTPDetails(String otp1, String otp2, String otp3, String otp4) {
+    public boolean isDriverAvailable() {
+        return isDriverAvailable;
+    }
+
+    // N/W call to add driver to pool
+    public void sendRideRequest() {
+        // send driver details
+    }
+
+    // When push notification received, update rider
+    public boolean getRideAlert() {
+        // Get rider details from notification and set in getRiderDetails
+        isRiderNotificationReceived = true;
+        return isRiderNotificationReceived;
+    }
+
+    // N/W to accept ride alert
+    public void acceptRideAlert() {
+        isRideAlertAccepted = true;
+        isRiderNotificationReceived = false;
+    }
+
+    // N/W to cancel ride alert
+    public void cancelRideAlert() {
+        isRideAlertAccepted = false;
+        isRiderNotificationReceived = false;
+    }
+
+    public boolean isRideAlertAccepted() {
+        return isRideAlertAccepted;
+    }
+    /* End Driver Availability Screen*/
+
+    /* Start Driver Found Screen*/
+    // Should we log navigate to map or callRider or contactSupport
+    // N/W to cancel ride request
+    public void cancelRideRequest() {
+
+    }
+
+    public void startTrip() {
+    }
+    /* End Driver Found Screen*/
+
+    /* Start Driver Enter Rider Pin Screen */
+    // Pin fetched when rider details are sent along with notification, this avoids N/W call
+    public boolean isValidPin(String otp1, String otp2, String otp3, String otp4) {
+        String[] arr = {otp1, otp2, otp3, otp4};
+        for (int i = 0; i < 4; i++) {
+            if (!riderPin[i].equalsIgnoreCase(arr[i])) {
+                isTripStarted = false;
+                return false;
+            }
+        }
+        isTripStarted = true;
         return true;
     }
+    /* End Driver Enter Rider Pin Screen */
 
+    /* Start Driver On Trip Screen */
     // N/W call to end ride
     public void endRide() {
-        // Do Nothing
+        isTripStarted = false;
+        isRideAlertAccepted = false;
+        isRiderNotificationReceived = false;
     }
 
-    // N/W call to match drivers
-    public boolean sendRiderRequest() {
-        return true;
+    public boolean isTripStarted() {
+        return isTripStarted;
     }
+    /* End Driver On Trip Screen */
 
+    /* Start Driver Trip Summary Screen */
     // N/W call to rate trip
     public void rateTrip(String rating, String comments) {
         // Do Nothing
@@ -146,20 +177,40 @@ public class UserClient {
     // N/W call to get trip summary
     public Map<String, String> getTripSummary() {
         Map<String, String> map = new HashMap<>();
-        map.put("source", getSourceAddress().toString());
-        map.put("destination", getDestinationAddress().toString());
-        map.put("distance", "12 km");
-        map.put("time", "35 min");
-        map.put("amount", "140");
+        map.put("source", getSource());
+        map.put("destination", getDestination());
+        map.put("distance", getDistance());
+        map.put("time", getTime());
+        map.put("amount", getAmount());
         return map;
     }
 
-    // N/W call
-    public boolean isRideAccepted() {
-        return false;
+    public String getSource() {
+        return source;
     }
 
-    public void cancelRideRequest() {
-
+    public String getDestination() {
+        return destination;
     }
+
+    private String getDistance() {
+        return distance;
+    }
+
+    public void setDistance(String distance) {
+        this.distance = distance;
+    }
+
+    private String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    private String getAmount() {
+        return amount;
+    }
+    /* End Driver Trip Summary Screen*/
 }
