@@ -22,8 +22,8 @@ import java.util.Set;
 public class UserClient extends Application {
 
     private static final String TAG = UserClient.class.getSimpleName();
-    private String destination = "Airport Road, Vaikuntam Layout, Lakshminarayana Pura, BEML Layout, Marathahalli, Bengaluru, Karnataka, India";
-    private String source = "No 33/1 Chikkannhelli Village, Sarjapur Main Road, RGA Tech park, Bengaluru, Karnataka, India";
+    private String destination = "KIAL Rd, Devanahalli, Bengaluru, Karnataka";
+    private String source = "Adarsh Palm Retreat, Bellandur, Bengaluru";
     private LatLng driverLatLng;
     private String distance; // = "12 km";
     private String time; // = "35 min";

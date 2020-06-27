@@ -34,6 +34,9 @@ public class LocationService extends Service {
 
     private FusedLocationProviderClient mFusedLocationClient;
     private UserClient userClient;
+    private final static long UPDATE_INTERVAL = 4 * 1000;  /* 4 secs */
+    private final static long FASTEST_INTERVAL = 2000; /* 2 sec */
+    double increment = 0;
 
     @Nullable
     @Override
@@ -76,8 +79,8 @@ public class LocationService extends Service {
         // Create the location request to start receiving updates
         LocationRequest mLocationRequestHighAccuracy = new LocationRequest();
         mLocationRequestHighAccuracy.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequestHighAccuracy.setInterval(WocConstants.LOCATION_UPDATE_INTERVAL);
-        mLocationRequestHighAccuracy.setFastestInterval(WocConstants.LOCATION_UPDATE_INTERVAL);
+        mLocationRequestHighAccuracy.setInterval(UPDATE_INTERVAL);
+        mLocationRequestHighAccuracy.setFastestInterval(FASTEST_INTERVAL);
 
 
         // new Google API SDK v11 uses getFusedLocationProviderClient(this)
@@ -93,9 +96,10 @@ public class LocationService extends Service {
                     public void onLocationResult(LocationResult locationResult) {
                         Location location = locationResult.getLastLocation();
                         if (location != null) {
-                            double lat = location.getLatitude();
-                            double lng = location.getLongitude();
-                            Log.d(TAG, "onLocationResult: got location result: Lat: " + lat + ", Lng: " + lng);
+                            double lat = location.getLatitude() + increment;
+                            double lng = location.getLongitude() + increment;
+//                            increment += 0.05; // used to mimic live location
+                                    Log.d(TAG, "onLocationResult: got location result: Lat: " + lat + ", Lng: " + lng);
                             userClient.saveUserLocation(lat, lng);
                             if (userClient.isInitialLocationBroadcast() && userClient.getMapInputContainerEnum().compareTo(MapInputContainerEnum.DriverLoaderFragment) == 0) {
                                 sendMessage();

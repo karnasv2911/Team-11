@@ -54,7 +54,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
     private UserClient userClient;
     private GeoApiContext mGeoApiContext = null;
     private List<PolylineData> mPolylineData = new ArrayList<>();
-    private List<Marker> mTripMarkers = new ArrayList<>();
     private String source;
     private String destination;
     private LatLng driverLatLng;
@@ -111,22 +110,23 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
         if (mGeoApiContext == null) {
             mGeoApiContext = new GeoApiContext.Builder().apiKey(getString(R.string.google_maps_key)).build();
         }
-        populateLocations();
-    }
-
-    private void populateLocations() {
         // usecase 1: show driver location
         // screens: verification, availability
         if (userClient.isDriverAvailable()) {
             startUserLocationsRunnable();
+            populateLocations();
         } else {
             stopLocationUpdates();
         }
         driverLatLng = userClient.getDriverLatLng();
+    }
 
+    private void populateLocations() {
+        resetMap();
         // usecase 2: show trip route from rider source to rider destination
         // screens: ride found, enter pin
-        if (!userClient.isTripStarted() && userClient.isRideAlertAccepted()) {
+        if (userClient.isRideAlertAccepted()) {
+            Log.d(TAG, "user alert accepted and trip is NOT started");
             source = userClient.getSource();
             destination = userClient.getDestination();
             shouldGetDirections = true;
@@ -134,26 +134,29 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
 
         // usecase 3: is ride started
         // screens: on trip
-        else if (userClient.isRideAlertAccepted() && userClient.isTripStarted()) {
+        if (userClient.isTripStarted()) {
+            Log.d(TAG, "user alert accepted and trip is started");
             driverLatLng = userClient.getDriverLatLng();
             destination = userClient.getDestination();
             shouldGetLiveDirections = true;
         }
 
         if (shouldGetDirections || shouldGetLiveDirections) {
-            removeTripMarkers();
             calculateDirections();
         }
     }
 
     private void calculateDirections() {
         DirectionsApiRequest directions = new DirectionsApiRequest(mGeoApiContext);
-        if (shouldGetDirections) {
+        if (!shouldGetLiveDirections && shouldGetDirections) {
+            Log.d(TAG, "calculateDirections, source location: " + source);
             directions.origin(source);
         } else if (shouldGetLiveDirections) {
+            Log.d(TAG, "calculateDirections, live location: " + driverLatLng.latitude + ", " + driverLatLng.longitude);
             com.google.maps.model.LatLng latLng = new com.google.maps.model.LatLng(driverLatLng.latitude, driverLatLng.longitude);
             directions.origin(latLng);
         }
+        Log.d(TAG, "calculateDirections, destination location: " + destination);
         directions.destination(destination).setCallback(new PendingResult.Callback<DirectionsResult>() {
             @Override
             public void onResult(DirectionsResult result) {
@@ -215,13 +218,14 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
         Marker marker = mGoogleMap.addMarker(new MarkerOptions()
                 .position(driverLatLng)
                 .title(userClient.getDriverDetails().getName()));
-        marker.setTag("start");
+        marker.setTag("live");
         marker.showInfoWindow();
         setCameraView();
     }
 
     private void resetMap() {
         if (mGoogleMap != null) {
+            Log.d(TAG, "resetMap");
             mGoogleMap.clear();
             if (mPolylineData.size() > 0) {
                 mPolylineData.clear();
@@ -263,9 +267,24 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
                 break;
             }
             case R.id.btn_reset_map: {
-                addMapMarker();
+                if (shouldGetDirections || shouldGetLiveDirections) {
+                    determineMapAction();
+                } else {
+                    addMapMarker();
+                }
                 break;
             }
+        }
+    }
+
+    private void determineMapAction() {
+        LatLng liveLocation = userClient.getDriverLatLng();
+        if ((driverLatLng.latitude != liveLocation.latitude) || (driverLatLng.longitude != liveLocation.longitude)) {
+            Log.d(TAG, "liveLocation: " + liveLocation.toString());
+            driverLatLng = userClient.getDriverLatLng();
+            source = userClient.getSource();
+            destination = userClient.getDestination();
+            populateLocations();
         }
     }
 
@@ -273,12 +292,8 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
         mHandler.postDelayed(mRunnable = new Runnable() {
             @Override
             public void run() {
-                LatLng liveLocation = userClient.getDriverLatLng();
-                Log.d(TAG, "startUserLocationsRunnable: starting runnable for retrieving updated locations." + liveLocation.toString());
-                if ((driverLatLng.latitude != liveLocation.latitude) || (driverLatLng.longitude != liveLocation.longitude)) {
-                    driverLatLng = userClient.getDriverLatLng();
-                    addMapMarker();
-                }
+                Log.d(TAG, "startUserLocationsRunnable: starting runnable for retrieving updated locations.");
+                determineMapAction();
                 mHandler.postDelayed(mRunnable, WocConstants.LOCATION_UPDATE_INTERVAL);
             }
         }, WocConstants.LOCATION_UPDATE_INTERVAL);
@@ -337,24 +352,34 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
         userClient.setDistance(distance);
         userClient.setTime(time);
 
+        // Highlight start location
+        LatLng startLocation = new LatLng(
+                polylineData.getLeg().startLocation.lat,
+                polylineData.getLeg().startLocation.lng
+        );
+        String title = source;
+        if (shouldGetLiveDirections) {
+            title = userClient.getDriverDetails().getName();
+        }
+        Marker startMarker = mGoogleMap.addMarker(new MarkerOptions()
+                .position(startLocation)
+                .title(title)
+        );
+        startMarker.setTag("start");
+        startMarker.showInfoWindow();
+
         // Highlight end location
         LatLng endLocation = new LatLng(
                 polylineData.getLeg().endLocation.lat,
                 polylineData.getLeg().endLocation.lng
         );
-        Marker marker = mGoogleMap.addMarker(new MarkerOptions()
+
+        Marker endMarker = mGoogleMap.addMarker(new MarkerOptions()
                 .position(endLocation)
                 .title(destination)
         );
-        marker.setTag("end");
-        marker.showInfoWindow();
-        mTripMarkers.add(marker);
-    }
-
-    private void removeTripMarkers() {
-        for (Marker marker : mTripMarkers) {
-            marker.remove();
-        }
+        endMarker.setTag("end");
+        endMarker.showInfoWindow();
     }
 
     public void zoomRoute(List<LatLng> lstLatLngRoute) {

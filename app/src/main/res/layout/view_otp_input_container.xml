@@ -37,9 +37,7 @@
         android:inputType="number"
         android:maxLength="1"
         android:nextFocusRight="@+id/etOPT3"
-        android:textSize="16sp">
-        <requestFocus/>
-    </EditText>
+        android:textSize="16sp"/>
 
     <EditText
         android:id="@+id/etOPT3"
@@ -53,9 +51,7 @@
         android:inputType="number"
         android:maxLength="1"
         android:nextFocusRight="@+id/etOPT4"
-        android:textSize="16sp">
-        <requestFocus/>
-    </EditText>
+        android:textSize="16sp"/>
 
     <EditText
         android:id="@+id/etOPT4"
@@ -68,5 +64,5 @@
         android:imeOptions="actionDone"
         android:inputType="number"
         android:maxLength="1"
-        android:textSize="16sp" />
+        android:textSize="16sp"/>
 </LinearLayout>
