@@ -3,11 +3,12 @@ package com.kickstart.woc.wocdriverapp.ui.activities;
 import android.Manifest;
 import android.app.ActivityManager;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.location.Address;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -27,6 +28,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -34,14 +36,13 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.libraries.places.api.model.Place;
 import com.google.android.material.navigation.NavigationView;
 import com.kickstart.woc.wocdriverapp.R;
-import com.kickstart.woc.wocdriverapp.model.User;
 import com.kickstart.woc.wocdriverapp.services.LocationService;
 import com.kickstart.woc.wocdriverapp.ui.fragments.DriverAvailabilityFragment;
 import com.kickstart.woc.wocdriverapp.ui.fragments.DriverHomeFragment;
 import com.kickstart.woc.wocdriverapp.ui.fragments.MapViewFragment;
+import com.kickstart.woc.wocdriverapp.ui.listeners.LocationServiceListener;
 import com.kickstart.woc.wocdriverapp.ui.listeners.PhoneCallListener;
 import com.kickstart.woc.wocdriverapp.ui.listeners.ReplaceInputContainerListener;
 import com.kickstart.woc.wocdriverapp.utils.FragmentUtils;
@@ -49,8 +50,6 @@ import com.kickstart.woc.wocdriverapp.utils.WocConstants;
 import com.kickstart.woc.wocdriverapp.utils.map.ExpandContractMapUtil;
 import com.kickstart.woc.wocdriverapp.utils.map.MapInputContainerEnum;
 import com.kickstart.woc.wocdriverapp.utils.map.UserClient;
-
-import java.util.Locale;
 
 import static com.kickstart.woc.wocdriverapp.utils.WocConstants.ERROR_DIALOG_REQUEST;
 import static com.kickstart.woc.wocdriverapp.utils.WocConstants.MAP_LAYOUT_STATE_CONTRACTED;
@@ -64,7 +63,8 @@ public class DriverHomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         MapViewFragment.MapViewSizeListener,
         ReplaceInputContainerListener,
-        PhoneCallListener {
+        PhoneCallListener,
+        LocationServiceListener {
 
     private static final String TAG = DriverHomeActivity.class.getSimpleName();
 
@@ -72,12 +72,10 @@ public class DriverHomeActivity extends AppCompatActivity
     private FusedLocationProviderClient mFusedLocationClient;
     private UserClient userClient;
     private FragmentUtils fragmentUtils = new FragmentUtils();
-    private MapInputContainerEnum mapInputContainerEnum = MapInputContainerEnum.Unknown;
-    private Location mUserLocation;
+    private MapInputContainerEnum mapInputContainerEnum;
 
     private int mMapLayoutState = 0;
     private boolean mLocationPermissionGranted = false;
-    private boolean isLocationServicesOn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,8 +94,12 @@ public class DriverHomeActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        userClient = (UserClient)getApplicationContext();
+        userClient = (UserClient) getApplicationContext();
 
+        userClient.init();
+
+        mapInputContainerEnum = userClient.getMapInputContainerEnum();
+        onReplaceInputContainer(mapInputContainerEnum);
         if (checkMapServices()) {
             if (mLocationPermissionGranted) {
                 getLastKnownLocation();
@@ -106,6 +108,33 @@ public class DriverHomeActivity extends AppCompatActivity
             }
         }
     }
+
+    @Override
+    protected void onPause() {
+        // Unregister since the activity is paused.
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(
+                mMessageReceiver);
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                mMessageReceiver, new IntentFilter(WocConstants.INITIAL_LOCATION_BROADCAST));
+        super.onResume();
+    }
+
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (userClient.isInitialLocationBroadcast() && userClient.getMapInputContainerEnum().compareTo(MapInputContainerEnum.DriverLoaderFragment) == 0) {
+                Log.d("receiver", "Got message");
+                userClient.setInitialLocationBroadcast(false);
+                userClient.setMapInputContainerEnum(MapInputContainerEnum.Unknown);
+                onReplaceInputContainer(MapInputContainerEnum.Unknown);
+            }
+        }
+    };
 
     @Override
     public void onBackPressed() {
@@ -168,10 +197,6 @@ public class DriverHomeActivity extends AppCompatActivity
         return true;
     }
 
-    private void showFragment() {
-        onReplaceInputContainer(mapInputContainerEnum);
-    }
-
     @Override
     public void onMapViewSizeChange() {
         int mapSize = 50;
@@ -228,7 +253,6 @@ public class DriverHomeActivity extends AppCompatActivity
     // Used to determine if maps is enabled on the device
     public boolean isMapsEnabled() {
         final LocationManager manager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-
         if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             buildAlertMessageNoGps();
             return false;
@@ -299,8 +323,8 @@ public class DriverHomeActivity extends AppCompatActivity
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mLocationPermissionGranted = true;
+                    getLastKnownLocation();
                 }
-
                 break;
             case REQUEST_CALL:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -311,48 +335,33 @@ public class DriverHomeActivity extends AppCompatActivity
         }
     }
 
-    // Step 1: Get User Details
-    // Step 2: Get User Location
     private void getLastKnownLocation() {
         Log.d(TAG, "getLastKnownLocation: called.");
-        mFusedLocationClient.getLastLocation().addOnCompleteListener(
-                new OnCompleteListener<Location>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Location> task) {
-                        if (task.isSuccessful()) {
-                            Location location = task.getResult();
-                            if (location != null) {
-                                Log.d(TAG, "onComplete: latitude: " + location.getLatitude());
-                                Log.d(TAG, "onComplete: longitude: " + location.getLongitude());
-                                mUserLocation = new Location("FusedLocationProviderClient");
-                                mUserLocation.setLatitude(location.getLatitude());
-                                mUserLocation.setLongitude(location.getLongitude());
-                                saveUserLocation();
-                                showFragment();
-                                startLocationService();
+        if (userClient.isInitialLocationBroadcast() && mapInputContainerEnum.compareTo(MapInputContainerEnum.DriverLoaderFragment) == 0) {
+            shouldEnableLocationService(true);
+        } else {
+            mFusedLocationClient.getLastLocation().addOnCompleteListener(
+                    new OnCompleteListener<Location>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Location> task) {
+                            if (task.isSuccessful()) {
+                                Location location = task.getResult();
+                                if (location != null) {
+                                    userClient.saveUserLocation(location.getLatitude(), location.getLongitude());
+                                }
                             }
                         }
                     }
-                }
-        );
+            );
+        }
     }
 
-    // Step 3: Save user location
-    private void saveUserLocation() {
-        userClient.saveUserLocation(mUserLocation.getLatitude(), mUserLocation.getLongitude());
-    }
-
-    // Step 5: Start Location Service
     private void startLocationService() {
-        if (isLocationServicesOn && !isLocationServiceRunning()) {
+        if (!isLocationServiceRunning()) {
             Intent serviceIntent = new Intent(this, LocationService.class);
             this.startService(serviceIntent);
-
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-
                 this.startForegroundService(serviceIntent);
-            } else {
-                this.startService(serviceIntent);
             }
         }
     }
@@ -389,6 +398,18 @@ public class DriverHomeActivity extends AppCompatActivity
                 String dial = "tel: " + number;
                 startActivity(new Intent(Intent.ACTION_CALL, Uri.parse(dial)));
             }
+        }
+    }
+
+    @Override
+    public void shouldEnableLocationService(boolean locationService) {
+        if (locationService) {
+            Log.d(TAG, "starting LocationService");
+            startLocationService();
+        } else {
+            Intent serviceIntent = new Intent(this, LocationService.class);
+            Log.d(TAG, "stopping LocationService");
+            this.stopService(serviceIntent);
         }
     }
 }

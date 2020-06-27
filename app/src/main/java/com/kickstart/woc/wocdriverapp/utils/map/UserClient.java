@@ -1,21 +1,29 @@
 package com.kickstart.woc.wocdriverapp.utils.map;
 
 import android.app.Application;
+import android.location.Address;
+import android.location.Geocoder;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.kickstart.woc.wocdriverapp.R;
 import com.kickstart.woc.wocdriverapp.model.User;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class UserClient extends Application {
 
     private static final String TAG = UserClient.class.getSimpleName();
-    private String source = "Airport Road, Vaikuntam Layout, Lakshminarayana Pura, BEML Layout, Marathahalli, Bengaluru, Karnataka, India";
-    private String destination = "Adarsh Nagar Road No 2, West Balaji Hill Colony, Adarsh Nagar, Uppal, Hyderabad, Telangana, India";
+    private String destination = "Airport Road, Vaikuntam Layout, Lakshminarayana Pura, BEML Layout, Marathahalli, Bengaluru, Karnataka, India";
+    private String source = "No 33/1 Chikkannhelli Village, Sarjapur Main Road, RGA Tech park, Bengaluru, Karnataka, India";
     private LatLng driverLatLng;
     private String distance; // = "12 km";
     private String time; // = "35 min";
@@ -26,7 +34,10 @@ public class UserClient extends Application {
     private boolean isRiderNotificationReceived;
     private boolean isRideAlertAccepted;
     private boolean isTripStarted;
+    private boolean isInitialBroadcast = true;
     private String[] riderPin;
+    private  MapInputContainerEnum mapInputContainerEnum;
+    private Set<String> wocEnabledLocations;
 
     /* Start Map Screen */
     // N/W calls
@@ -35,8 +46,20 @@ public class UserClient extends Application {
         1. Get driver details and set in getDriverDetails
         2. Get list of WocEnabled locations and update in setInWocEnabledLocation
          */
-        setInWocEnabledLocation(true);
+        if (isInitialBroadcast) {
+            mapInputContainerEnum = MapInputContainerEnum.DriverLoaderFragment;
+        } else {
+            mapInputContainerEnum = MapInputContainerEnum.Unknown;
+        }
+        wocEnabledLocations = new HashSet<>();
+    }
 
+    public void setMapInputContainerEnum(MapInputContainerEnum mapInputContainerEnum) {
+        this.mapInputContainerEnum = mapInputContainerEnum;
+    }
+
+    public MapInputContainerEnum getMapInputContainerEnum() {
+        return mapInputContainerEnum;
     }
 
     // Retrieve user details from db, mocked driver details are fetched below
@@ -46,16 +69,8 @@ public class UserClient extends Application {
 
     // Retrieve user details from db, mocked rider details are fetched below
     public User getRiderDetails() {
-        riderPin = new String[] {"1", "2", "3", "4"};
+        riderPin = new String[]{"1", "2", "3", "4"};
         return new User("riderId", true, "riderName", "rider@gmail.com", "1234567890", R.drawable.ic_rider_pin, 4.5, source, destination, getCurrentTimeStamp());
-    }
-
-    public void setInWocEnabledLocation(boolean isInWocEnabledLocation) {
-        this.isInWocEnabledLocation = isInWocEnabledLocation;
-    }
-
-    public boolean isInWocEnabledLocation() {
-        return isInWocEnabledLocation;
     }
 
     public String getCurrentTimeStamp() {
@@ -64,23 +79,42 @@ public class UserClient extends Application {
         return sdf.format(timestamp);
     }
 
-    // N/W call: driver is able to access map and is in wocEnabledLocation
-    public void setLocationServiceable(boolean isLocationServiceable) {
-        this.isLocationServiceable = isLocationServiceable;
-    }
-
     // N/W call Save user location
     public void saveUserLocation(double lat, double lng) {
         User driverDetails = getDriverDetails();
         driverLatLng = new LatLng(lat, lng);
         driverDetails.setTimeStamp(getCurrentTimeStamp());
         // N/W call to update driver location;
+        if (isInitialBroadcast) {
+            checkIfInWocServiceableLocation();
+        }
+    }
+
+    private void checkIfInWocServiceableLocation() {
+        Geocoder geocoder = new Geocoder(getApplicationContext());
+        List<Address> addresses = new ArrayList<>();
+        try {
+            addresses = geocoder.getFromLocation(driverLatLng.latitude, driverLatLng.longitude, 1);
+        } catch (IOException e) {
+            Log.d(TAG, "Exception while getting address from LatLng");
+        }
+        Log.d(TAG, "address from LatLng: " + addresses.get(0));
+        if (addresses.size() > 0 && wocEnabledLocations.contains(addresses.get(0))) {
+            // N/W call: driver is able to access map and is in wocEnabledLocation
+        }
     }
 
     public LatLng getDriverLatLng() {
         return driverLatLng;
     }
 
+    public boolean isInitialLocationBroadcast() {
+        return isInitialBroadcast;
+    }
+
+    public void setInitialLocationBroadcast(boolean isInitialBroadcast) {
+        this.isInitialBroadcast = isInitialBroadcast;
+    }
     /* End Map Screen */
 
     /* Start Driver Verification Screen */

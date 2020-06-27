@@ -2,8 +2,6 @@ package com.kickstart.woc.wocdriverapp.ui.fragments;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -11,9 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
@@ -37,6 +33,7 @@ import com.google.maps.model.DirectionsResult;
 import com.google.maps.model.DirectionsRoute;
 import com.kickstart.woc.wocdriverapp.R;
 import com.kickstart.woc.wocdriverapp.model.PolylineData;
+import com.kickstart.woc.wocdriverapp.ui.listeners.LocationServiceListener;
 import com.kickstart.woc.wocdriverapp.utils.WocConstants;
 import com.kickstart.woc.wocdriverapp.utils.map.UserClient;
 
@@ -45,8 +42,6 @@ import java.util.List;
 
 public class MapViewFragment extends Fragment implements OnMapReadyCallback,
         View.OnClickListener {
-//        , GoogleMap.OnInfoWindowClickListener
-//        , GoogleMap.OnPolylineClickListener {
 
     private static final String TAG = MapViewFragment.class.getSimpleName();
 
@@ -55,6 +50,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
     private MapViewSizeListener mMapViewSizeListener;
     private Handler mHandler = new Handler();
     private Runnable mRunnable;
+    private LocationServiceListener locationServiceListener;
     private UserClient userClient;
     private GeoApiContext mGeoApiContext = null;
     private List<PolylineData> mPolylineData = new ArrayList<>();
@@ -64,7 +60,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
     private LatLng driverLatLng;
     private boolean shouldGetDirections;
     private boolean shouldGetLiveDirections;
-    private String routeNum;
     private String distance;
     private String time;
 
@@ -92,19 +87,15 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof MapViewSizeListener) {
-            //init the listener
-            mMapViewSizeListener = (MapViewSizeListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement MapViewSizeListener");
-        }
+        mMapViewSizeListener = (MapViewSizeListener) context;
+        locationServiceListener = (LocationServiceListener) context;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mMapViewSizeListener = null;
+        locationServiceListener = null;
     }
 
     private void initGoogleMap(Bundle savedInstanceState) {
@@ -128,8 +119,10 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
         // screens: verification, availability
         if (userClient.isDriverAvailable()) {
             startUserLocationsRunnable();
-            driverLatLng = userClient.getDriverLatLng();
+        } else {
+            stopLocationUpdates();
         }
+        driverLatLng = userClient.getDriverLatLng();
 
         // usecase 2: show trip route from rider source to rider destination
         // screens: ride found, enter pin
@@ -141,7 +134,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
 
         // usecase 3: is ride started
         // screens: on trip
-        if (userClient.isRideAlertAccepted() && userClient.isTripStarted()) {
+        else if (userClient.isRideAlertAccepted() && userClient.isTripStarted()) {
             driverLatLng = userClient.getDriverLatLng();
             destination = userClient.getDestination();
             shouldGetLiveDirections = true;
@@ -155,7 +148,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
 
     private void calculateDirections() {
         DirectionsApiRequest directions = new DirectionsApiRequest(mGeoApiContext);
-//        directions.alternatives(true);
         if (shouldGetDirections) {
             directions.origin(source);
         } else if (shouldGetLiveDirections) {
@@ -216,8 +208,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
         mGoogleMap.getUiSettings().setTiltGesturesEnabled(true);
         mGoogleMap.getUiSettings().setZoomGesturesEnabled(true);
         addMapMarker();
-//        mGoogleMap.setOnPolylineClickListener(this);
-//        mGoogleMap.setOnInfoWindowClickListener(this);
     }
 
     private void addMapMarker() {
@@ -256,6 +246,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
         mMapView.onDestroy();
         super.onDestroy();
         stopLocationUpdates();
+        locationServiceListener.shouldEnableLocationService(false);
     }
 
     @Override
@@ -279,11 +270,15 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
     }
 
     private void startUserLocationsRunnable() {
-        Log.d(TAG, "startUserLocationsRunnable: starting runnable for retrieving updated locations.");
         mHandler.postDelayed(mRunnable = new Runnable() {
             @Override
             public void run() {
-                driverLatLng = userClient.getDriverLatLng();
+                LatLng liveLocation = userClient.getDriverLatLng();
+                Log.d(TAG, "startUserLocationsRunnable: starting runnable for retrieving updated locations." + liveLocation.toString());
+                if ((driverLatLng.latitude != liveLocation.latitude) || (driverLatLng.longitude != liveLocation.longitude)) {
+                    driverLatLng = userClient.getDriverLatLng();
+                    addMapMarker();
+                }
                 mHandler.postDelayed(mRunnable, WocConstants.LOCATION_UPDATE_INTERVAL);
             }
         }, WocConstants.LOCATION_UPDATE_INTERVAL);
@@ -329,31 +324,12 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
                     if (duration < maxDuration) {
                         maxDuration = duration;
                         populateMarkerAlert(mPolylineData.get(0));
-//                        onPolylineClick(polyline);
                         zoomRoute(polyline.getPoints());
                     }
                 }
             }
         });
     }
-
-//    @Override
-//    public void onPolylineClick(Polyline polyline) {
-//        int index = 0;
-//        for (PolylineData polylineData : mPolylineData) {
-//            index++;
-//            Log.d(TAG, "onPolylineClick: toString: " + polylineData.toString());
-//            if (polyline.getId().equals(polylineData.getPolyline().getId())) {
-//                polylineData.getPolyline().setColor(ContextCompat.getColor(getActivity(), R.color.blue1));
-//                // ZIndex shows selected poyline map in case of overlap with unselected polylines
-//                polylineData.getPolyline().setZIndex(1);
-//                populateMarkerAlert(index, polylineData);
-//            } else {
-//                polylineData.getPolyline().setColor(ContextCompat.getColor(getActivity(), R.color.darkGrey));
-//                polylineData.getPolyline().setZIndex(0);
-//            }
-//        }
-//    }
 
     private void populateMarkerAlert(PolylineData polylineData) {
         distance = polylineData.getLeg().distance.humanReadable;
@@ -395,58 +371,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
                 null
         );
     }
-
-//    @Override
-//    public void onInfoWindowClick(Marker marker) {
-//        String key = String.valueOf(marker.getTag());
-//        switch (key) {
-//            case "start":
-//                break;
-//            case "end":
-//                if (shouldGetLiveDirections) {
-//                    navigateToGoogleMaps();
-//                    showAlertToAcceptRide();
-//                }
-//                break;
-//        }
-//    }
-
-//    private void showAlertToAcceptRide() {
-//        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-//        LayoutInflater factory = LayoutInflater.from(getContext());
-//        View view = factory.inflate(R.layout.layout_map_marker, null);
-//        TextView mRouteNum = view.findViewById(R.id.routeNum);
-//        mRouteNum.setText("Route #: " + routeNum);
-//        TextView mDistance = view.findViewById(R.id.distance);
-//        mDistance.setText("Distance: " + distance);
-//        TextView mTime = view.findViewById(R.id.time);
-//        mTime.setText("Duration: " + time);
-//        Button mOkButton = view.findViewById(R.id.ok);
-//        Button mCancelButton = view.findViewById(R.id.cancel);
-//        builder.setView(view)
-//                .setCancelable(true);
-//        AlertDialog alert = builder.create();
-//        mOkButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                navigateToGoogleMaps();
-//                alert.dismiss();
-//            }
-//        });
-//        mCancelButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                alert.dismiss();
-//            }
-//        });
-//        alert.show();
-//    }
-//
-//    private void navigateToGoogleMaps() {
-//        Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
-//                Uri.parse("google.navigation:q=" + destination));
-//        startActivity(intent);
-//    }
 
     private void showErrorAlert(String errorMessage) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this.getContext());

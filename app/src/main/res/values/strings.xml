@@ -64,6 +64,7 @@
     <string name="rateRider">Rate Rider</string>
     <string name="comments">Comments (optional)</string>
     <string name="Rs">\u20B9</string>
+    <string name="duration">30</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
