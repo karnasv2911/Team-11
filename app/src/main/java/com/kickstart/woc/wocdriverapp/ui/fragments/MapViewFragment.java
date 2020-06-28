@@ -2,8 +2,6 @@ package com.kickstart.woc.wocdriverapp.ui.fragments;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -11,9 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
@@ -37,6 +33,7 @@ import com.google.maps.model.DirectionsResult;
 import com.google.maps.model.DirectionsRoute;
 import com.kickstart.woc.wocdriverapp.R;
 import com.kickstart.woc.wocdriverapp.model.PolylineData;
+import com.kickstart.woc.wocdriverapp.ui.listeners.LocationServiceListener;
 import com.kickstart.woc.wocdriverapp.utils.WocConstants;
 import com.kickstart.woc.wocdriverapp.utils.map.UserClient;
 
@@ -45,8 +42,6 @@ import java.util.List;
 
 public class MapViewFragment extends Fragment implements OnMapReadyCallback,
         View.OnClickListener {
-//        , GoogleMap.OnInfoWindowClickListener
-//        , GoogleMap.OnPolylineClickListener {
 
     private static final String TAG = MapViewFragment.class.getSimpleName();
 
@@ -55,18 +50,18 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
     private MapViewSizeListener mMapViewSizeListener;
     private Handler mHandler = new Handler();
     private Runnable mRunnable;
+    private LocationServiceListener locationServiceListener;
     private UserClient userClient;
     private GeoApiContext mGeoApiContext = null;
     private List<PolylineData> mPolylineData = new ArrayList<>();
-    private List<Marker> mTripMarkers = new ArrayList<>();
     private String source;
     private String destination;
     private LatLng driverLatLng;
     private boolean shouldGetDirections;
     private boolean shouldGetLiveDirections;
-    private String routeNum;
     private String distance;
     private String time;
+    private List<Marker> markers = new ArrayList<>();
 
     public interface MapViewSizeListener {
         void onMapViewSizeChange();
@@ -92,19 +87,15 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof MapViewSizeListener) {
-            //init the listener
-            mMapViewSizeListener = (MapViewSizeListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement MapViewSizeListener");
-        }
+        mMapViewSizeListener = (MapViewSizeListener) context;
+        locationServiceListener = (LocationServiceListener) context;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mMapViewSizeListener = null;
+        locationServiceListener = null;
     }
 
     private void initGoogleMap(Bundle savedInstanceState) {
@@ -120,20 +111,22 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
         if (mGeoApiContext == null) {
             mGeoApiContext = new GeoApiContext.Builder().apiKey(getString(R.string.google_maps_key)).build();
         }
-        populateLocations();
-    }
-
-    private void populateLocations() {
         // usecase 1: show driver location
         // screens: verification, availability
         if (userClient.isDriverAvailable()) {
             startUserLocationsRunnable();
-            driverLatLng = userClient.getDriverLatLng();
+            populateLocations();
+        } else {
+            stopLocationUpdates();
         }
+        driverLatLng = userClient.getDriverLatLng();
+    }
 
+    private void populateLocations() {
         // usecase 2: show trip route from rider source to rider destination
         // screens: ride found, enter pin
-        if (!userClient.isTripStarted() && userClient.isRideAlertAccepted()) {
+        if (userClient.isRideAlertAccepted()) {
+            Log.d(TAG, "user alert accepted and trip is NOT started");
             source = userClient.getSource();
             destination = userClient.getDestination();
             shouldGetDirections = true;
@@ -141,27 +134,30 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
 
         // usecase 3: is ride started
         // screens: on trip
-        if (userClient.isRideAlertAccepted() && userClient.isTripStarted()) {
+        if (userClient.isTripStarted()) {
+            Log.d(TAG, "user alert accepted and trip is started");
             driverLatLng = userClient.getDriverLatLng();
             destination = userClient.getDestination();
             shouldGetLiveDirections = true;
         }
 
         if (shouldGetDirections || shouldGetLiveDirections) {
-            removeTripMarkers();
             calculateDirections();
         }
     }
 
     private void calculateDirections() {
+        resetMap();
         DirectionsApiRequest directions = new DirectionsApiRequest(mGeoApiContext);
-//        directions.alternatives(true);
-        if (shouldGetDirections) {
+        if (!shouldGetLiveDirections && shouldGetDirections) {
+            Log.d(TAG, "calculateDirections, source location: " + source);
             directions.origin(source);
         } else if (shouldGetLiveDirections) {
+            Log.d(TAG, "calculateDirections, live location: " + driverLatLng.latitude + ", " + driverLatLng.longitude);
             com.google.maps.model.LatLng latLng = new com.google.maps.model.LatLng(driverLatLng.latitude, driverLatLng.longitude);
             directions.origin(latLng);
         }
+        Log.d(TAG, "calculateDirections, destination location: " + destination);
         directions.destination(destination).setCallback(new PendingResult.Callback<DirectionsResult>() {
             @Override
             public void onResult(DirectionsResult result) {
@@ -215,24 +211,35 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
         mGoogleMap.getUiSettings().setScrollGesturesEnabled(true);
         mGoogleMap.getUiSettings().setTiltGesturesEnabled(true);
         mGoogleMap.getUiSettings().setZoomGesturesEnabled(true);
-        addMapMarker();
-//        mGoogleMap.setOnPolylineClickListener(this);
-//        mGoogleMap.setOnInfoWindowClickListener(this);
+        Log.d(TAG, "onMapReady");
+        setCameraView();
+        if (!shouldGetDirections && !shouldGetLiveDirections) {
+            addMapMarker();
+        }
     }
 
     private void addMapMarker() {
         resetMap();
-        Marker marker = mGoogleMap.addMarker(new MarkerOptions()
+        Marker mLiveMarker = mGoogleMap.addMarker(new MarkerOptions()
                 .position(driverLatLng)
                 .title(userClient.getDriverDetails().getName()));
-        marker.setTag("start");
-        marker.showInfoWindow();
+        mLiveMarker.setTag("live");
+        mLiveMarker.showInfoWindow();
+        markers.add(mLiveMarker);
         setCameraView();
     }
 
     private void resetMap() {
         if (mGoogleMap != null) {
+            Log.d(TAG, "resetMap");
             mGoogleMap.clear();
+            for (Marker m : markers) {
+                m.remove();
+            }
+            if (markers.size() > 0) {
+                markers.clear();
+                markers = new ArrayList<>();
+            }
             if (mPolylineData.size() > 0) {
                 mPolylineData.clear();
                 mPolylineData = new ArrayList<>();
@@ -256,6 +263,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
         mMapView.onDestroy();
         super.onDestroy();
         stopLocationUpdates();
+        locationServiceListener.shouldEnableLocationService(false);
     }
 
     @Override
@@ -272,18 +280,20 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
                 break;
             }
             case R.id.btn_reset_map: {
-                addMapMarker();
+                if (shouldGetDirections || shouldGetLiveDirections) {
+                    populateLocations();
+                }
                 break;
             }
         }
     }
 
     private void startUserLocationsRunnable() {
-        Log.d(TAG, "startUserLocationsRunnable: starting runnable for retrieving updated locations.");
         mHandler.postDelayed(mRunnable = new Runnable() {
             @Override
             public void run() {
-                driverLatLng = userClient.getDriverLatLng();
+                Log.d(TAG, "startUserLocationsRunnable: starting runnable for retrieving updated locations.");
+                populateLocations();
                 mHandler.postDelayed(mRunnable, WocConstants.LOCATION_UPDATE_INTERVAL);
             }
         }, WocConstants.LOCATION_UPDATE_INTERVAL);
@@ -329,7 +339,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
                     if (duration < maxDuration) {
                         maxDuration = duration;
                         populateMarkerAlert(mPolylineData.get(0));
-//                        onPolylineClick(polyline);
                         zoomRoute(polyline.getPoints());
                     }
                 }
@@ -337,48 +346,40 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
         });
     }
 
-//    @Override
-//    public void onPolylineClick(Polyline polyline) {
-//        int index = 0;
-//        for (PolylineData polylineData : mPolylineData) {
-//            index++;
-//            Log.d(TAG, "onPolylineClick: toString: " + polylineData.toString());
-//            if (polyline.getId().equals(polylineData.getPolyline().getId())) {
-//                polylineData.getPolyline().setColor(ContextCompat.getColor(getActivity(), R.color.blue1));
-//                // ZIndex shows selected poyline map in case of overlap with unselected polylines
-//                polylineData.getPolyline().setZIndex(1);
-//                populateMarkerAlert(index, polylineData);
-//            } else {
-//                polylineData.getPolyline().setColor(ContextCompat.getColor(getActivity(), R.color.darkGrey));
-//                polylineData.getPolyline().setZIndex(0);
-//            }
-//        }
-//    }
-
     private void populateMarkerAlert(PolylineData polylineData) {
         distance = polylineData.getLeg().distance.humanReadable;
         time = polylineData.getLeg().duration.humanReadable;
         userClient.setDistance(distance);
         userClient.setTime(time);
 
+        // Highlight start location
+        LatLng startLocation = new LatLng(
+                polylineData.getLeg().startLocation.lat,
+                polylineData.getLeg().startLocation.lng
+        );
+        String title = source;
+        if (shouldGetLiveDirections) {
+            title = userClient.getDriverDetails().getName();
+        }
+        Marker startMarker = mGoogleMap.addMarker(new MarkerOptions()
+                .position(startLocation)
+                .title(title)
+        );
+        startMarker.setTag("start");
+        startMarker.showInfoWindow();
+
         // Highlight end location
         LatLng endLocation = new LatLng(
                 polylineData.getLeg().endLocation.lat,
                 polylineData.getLeg().endLocation.lng
         );
-        Marker marker = mGoogleMap.addMarker(new MarkerOptions()
+
+        Marker endMarker = mGoogleMap.addMarker(new MarkerOptions()
                 .position(endLocation)
                 .title(destination)
         );
-        marker.setTag("end");
-        marker.showInfoWindow();
-        mTripMarkers.add(marker);
-    }
-
-    private void removeTripMarkers() {
-        for (Marker marker : mTripMarkers) {
-            marker.remove();
-        }
+        endMarker.setTag("end");
+        endMarker.showInfoWindow();
     }
 
     public void zoomRoute(List<LatLng> lstLatLngRoute) {
@@ -396,76 +397,29 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
         );
     }
 
-//    @Override
-//    public void onInfoWindowClick(Marker marker) {
-//        String key = String.valueOf(marker.getTag());
-//        switch (key) {
-//            case "start":
-//                break;
-//            case "end":
-//                if (shouldGetLiveDirections) {
-//                    navigateToGoogleMaps();
-//                    showAlertToAcceptRide();
-//                }
-//                break;
-//        }
-//    }
-
-//    private void showAlertToAcceptRide() {
-//        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-//        LayoutInflater factory = LayoutInflater.from(getContext());
-//        View view = factory.inflate(R.layout.layout_map_marker, null);
-//        TextView mRouteNum = view.findViewById(R.id.routeNum);
-//        mRouteNum.setText("Route #: " + routeNum);
-//        TextView mDistance = view.findViewById(R.id.distance);
-//        mDistance.setText("Distance: " + distance);
-//        TextView mTime = view.findViewById(R.id.time);
-//        mTime.setText("Duration: " + time);
-//        Button mOkButton = view.findViewById(R.id.ok);
-//        Button mCancelButton = view.findViewById(R.id.cancel);
-//        builder.setView(view)
-//                .setCancelable(true);
-//        AlertDialog alert = builder.create();
-//        mOkButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                navigateToGoogleMaps();
-//                alert.dismiss();
-//            }
-//        });
-//        mCancelButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                alert.dismiss();
-//            }
-//        });
-//        alert.show();
-//    }
-//
-//    private void navigateToGoogleMaps() {
-//        Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
-//                Uri.parse("google.navigation:q=" + destination));
-//        startActivity(intent);
-//    }
-
     private void showErrorAlert(String errorMessage) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this.getContext());
-        LayoutInflater factory = LayoutInflater.from(getContext());
-        final View view = factory.inflate(R.layout.layout_warning, null);
-        TextView mErrorText = view.findViewById(R.id.errorMessage);
-        if (errorMessage == null || errorMessage.length() == 0) {
-            mErrorText.setText(WocConstants.ERROR_MESSAGE);
-        } else {
-            mErrorText.setText(errorMessage);
-        }
-        builder.setView(view);
-        builder.setCancelable(true)
-                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, final int id) {
-                        dialog.dismiss();
-                    }
-                });
-        AlertDialog alert = builder.create();
-        alert.show();
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                LayoutInflater factory = LayoutInflater.from(getContext());
+                final View view = factory.inflate(R.layout.layout_warning, null);
+                TextView mErrorText = view.findViewById(R.id.errorMessage);
+                if (errorMessage == null || errorMessage.length() == 0) {
+                    mErrorText.setText(WocConstants.ERROR_MESSAGE);
+                } else {
+                    mErrorText.setText(errorMessage);
+                }
+                builder.setView(view);
+                builder.setCancelable(true)
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, final int id) {
+                                dialog.dismiss();
+                            }
+                        });
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
+        });
     }
 }

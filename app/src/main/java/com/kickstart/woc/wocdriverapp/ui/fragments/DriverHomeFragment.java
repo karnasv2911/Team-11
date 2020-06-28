@@ -51,6 +51,9 @@ public class DriverHomeFragment extends Fragment {
 
     private void renderInputViewContainer() {
         switch (mapInputContainerEnum) {
+            case DriverLoaderFragment:
+                fragmentUtils.replaceFragment(R.id.driverHomeContainer, TAG, getFragmentManager(), new DriverLoaderFragment());
+                break;
             case DriverVerificationFragment:
                 fragmentUtils.replaceFragment(R.id.map_view_container, TAG, getFragmentManager(), new MapViewFragment());
                 fragmentUtils.replaceFragment(R.id.input_view_container, TAG, getFragmentManager(), new DriverVerificationFragment());

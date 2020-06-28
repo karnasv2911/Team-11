@@ -1,7 +1,6 @@
 package com.kickstart.woc.wocdriverapp.ui.fragments;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.LayoutInflater;
@@ -17,6 +16,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.kickstart.woc.wocdriverapp.R;
+import com.kickstart.woc.wocdriverapp.ui.listeners.LocationServiceListener;
 import com.kickstart.woc.wocdriverapp.ui.listeners.PhoneCallListener;
 import com.kickstart.woc.wocdriverapp.ui.listeners.ReplaceInputContainerListener;
 import com.kickstart.woc.wocdriverapp.utils.WocConstants;
@@ -30,6 +30,7 @@ public class DriverAvailabilityFragment extends Fragment implements View.OnClick
     private UserClient userClient;
     private ReplaceInputContainerListener replaceInputContainerListener;
     private PhoneCallListener phoneCallListener;
+    private LocationServiceListener locationServiceListener;
 
     private Button mContactSupportButton;
     private Switch mSwitchCompat;
@@ -38,7 +39,7 @@ public class DriverAvailabilityFragment extends Fragment implements View.OnClick
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        userClient = (UserClient)getContext().getApplicationContext();
+        userClient = (UserClient) getContext().getApplicationContext();
     }
 
     @Override
@@ -53,10 +54,14 @@ public class DriverAvailabilityFragment extends Fragment implements View.OnClick
         mSwitchCompat.setOnClickListener(this::onClick);
 
         if (userClient.isDriverAvailable()) {
+            userClient.setDriverAvailable(true);
+            locationServiceListener.shouldEnableLocationService(true);
             mSwitchCompat.setChecked(true);
             mAvailabilityText.setText(getString(R.string.dOnDuty));
             mAvailabilityText.setBackground(getResources().getDrawable(R.drawable.blue_border_on));
             mAvailabilityText.setTextColor(getResources().getColor(R.color.white));
+        } else {
+            locationServiceListener.shouldEnableLocationService(false);
         }
         return view;
     }
@@ -77,6 +82,7 @@ public class DriverAvailabilityFragment extends Fragment implements View.OnClick
         super.onAttach(context);
         replaceInputContainerListener = (ReplaceInputContainerListener) context;
         phoneCallListener = (PhoneCallListener) context;
+        locationServiceListener = (LocationServiceListener) context;
     }
 
     @Override
@@ -84,6 +90,7 @@ public class DriverAvailabilityFragment extends Fragment implements View.OnClick
         super.onDetach();
         replaceInputContainerListener = null;
         phoneCallListener = null;
+        locationServiceListener = null;
     }
 
     @Override
@@ -92,11 +99,13 @@ public class DriverAvailabilityFragment extends Fragment implements View.OnClick
             case R.id.switchButton:
                 if (mSwitchCompat.isChecked()) {
                     userClient.setDriverAvailable(true);
+                    locationServiceListener.shouldEnableLocationService(true);
                     mAvailabilityText.setText(getString(R.string.dOnDuty));
                     mAvailabilityText.setBackground(getResources().getDrawable(R.drawable.blue_border_on));
                     mAvailabilityText.setTextColor(getResources().getColor(R.color.white));
                 } else {
                     userClient.setDriverAvailable(false);
+                    locationServiceListener.shouldEnableLocationService(false);
                     mAvailabilityText.setText(getString(R.string.dOffDuty));
                     mAvailabilityText.setBackground(getResources().getDrawable(R.drawable.blue_border_off));
                     mAvailabilityText.setTextColor(getResources().getColor(R.color.blueTrack));

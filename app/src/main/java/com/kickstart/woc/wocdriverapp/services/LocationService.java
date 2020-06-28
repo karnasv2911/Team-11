@@ -17,12 +17,15 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.kickstart.woc.wocdriverapp.utils.WocConstants;
+import com.kickstart.woc.wocdriverapp.utils.map.MapInputContainerEnum;
 import com.kickstart.woc.wocdriverapp.utils.map.UserClient;
 
 public class LocationService extends Service {
@@ -33,6 +36,7 @@ public class LocationService extends Service {
     private UserClient userClient;
     private final static long UPDATE_INTERVAL = 4 * 1000;  /* 4 secs */
     private final static long FASTEST_INTERVAL = 2000; /* 2 sec */
+    double increment = 0;
 
     @Nullable
     @Override
@@ -66,12 +70,11 @@ public class LocationService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand: called.");
-        getLocation();
+        getLocation(intent);
         return START_NOT_STICKY;
     }
 
-    private void getLocation() {
-
+    private void getLocation(Intent intent) {
         // ---------------------------------- LocationRequest ------------------------------------
         // Create the location request to start receiving updates
         LocationRequest mLocationRequestHighAccuracy = new LocationRequest();
@@ -91,31 +94,35 @@ public class LocationService extends Service {
         mFusedLocationClient.requestLocationUpdates(mLocationRequestHighAccuracy, new LocationCallback() {
                     @Override
                     public void onLocationResult(LocationResult locationResult) {
-
-                        Log.d(TAG, "onLocationResult: got location result.");
-
                         Location location = locationResult.getLastLocation();
-
                         if (location != null) {
-                            userClient.saveUserLocation(location.getLatitude(), location.getLongitude());
+                            double lat = location.getLatitude(); // - increment;
+                            double lng = location.getLongitude(); // + increment;
+//                            increment += 0.03; // used to mimic live location
+                                    Log.d(TAG, "onLocationResult: got location result: Lat: " + lat + ", Lng: " + lng);
+                            userClient.saveUserLocation(lat, lng);
+                            if (userClient.isInitialLocationBroadcast() && userClient.getMapInputContainerEnum().compareTo(MapInputContainerEnum.DriverLoaderFragment) == 0) {
+                                sendMessage();
+                                stopService(intent);
+                            }
                         }
                     }
                 },
                 Looper.myLooper()); // Looper.myLooper tells this to repeat forever until thread is destroyed
     }
 
-//    private void saveUserLocation(Location location) {
-//        try {
-//            User driver = userClient.getDriverDetails();
-//            Address address = new Address(Locale.ENGLISH);
-//            address.setLatitude(location.getLatitude());
-//            address.setLongitude(location.getLongitude());
-//            driver.setSource(address);
-//            driver.setTimeStamp(userClient.getCurrentTimeStamp());
-//            userClient.setUser(driver);
-//        } catch (NullPointerException npe) {
-//            Log.e(TAG, "saveUserLocation: userClient is null, stopping location service :: " + npe.getMessage());
-//            stopSelf();
-//        }
-//    }
+    private void sendMessage() {
+        Log.d("sender", "Broadcasting message");
+        Intent intent = new Intent(WocConstants.INITIAL_LOCATION_BROADCAST);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+    @Override
+    public boolean stopService(Intent name) {
+        super.stopService(name);
+        Log.d(TAG, "stopService: called.");
+        stopForeground(true);
+        stopSelf(START_NOT_STICKY);
+        return true;
+    }
 }

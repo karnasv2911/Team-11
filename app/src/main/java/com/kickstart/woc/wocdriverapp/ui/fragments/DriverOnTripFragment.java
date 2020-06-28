@@ -52,7 +52,7 @@ public class DriverOnTripFragment extends Fragment implements View.OnClickListen
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        navigateToGoogleMaps();
+//        navigateToGoogleMaps();
     }
 
     @Override
