@@ -22,8 +22,8 @@ import java.util.Set;
 public class UserClient extends Application {
 
     private static final String TAG = UserClient.class.getSimpleName();
-    private String destination = "KIAL Rd, Devanahalli, Bengaluru, Karnataka";
-    private String source = "Adarsh Palm Retreat, Bellandur, Bengaluru";
+    private String destination = "Airport, KIAL Rd, Devanahalli, Bengaluru, Karnataka";
+    private String source = "RMZ Eco World, Bellandur, Bengaluru, Karnataka";
     private LatLng driverLatLng;
     private String distance; // = "12 km";
     private String time; // = "35 min";
@@ -99,7 +99,7 @@ public class UserClient extends Application {
             Log.d(TAG, "Exception while getting address from LatLng");
         }
         Log.d(TAG, "address from LatLng: " + addresses.get(0));
-        if (addresses.size() > 0 && wocEnabledLocations.contains(addresses.get(0))) {
+        if (wocEnabledLocations != null && addresses.size() > 0 && wocEnabledLocations.contains(addresses.get(0))) {
             // N/W call: driver is able to access map and is in wocEnabledLocation
         }
     }

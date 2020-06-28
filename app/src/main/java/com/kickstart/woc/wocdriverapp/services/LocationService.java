@@ -96,9 +96,9 @@ public class LocationService extends Service {
                     public void onLocationResult(LocationResult locationResult) {
                         Location location = locationResult.getLastLocation();
                         if (location != null) {
-                            double lat = location.getLatitude() + increment;
-                            double lng = location.getLongitude() + increment;
-//                            increment += 0.05; // used to mimic live location
+                            double lat = location.getLatitude(); // - increment;
+                            double lng = location.getLongitude(); // + increment;
+//                            increment += 0.03; // used to mimic live location
                                     Log.d(TAG, "onLocationResult: got location result: Lat: " + lat + ", Lng: " + lng);
                             userClient.saveUserLocation(lat, lng);
                             if (userClient.isInitialLocationBroadcast() && userClient.getMapInputContainerEnum().compareTo(MapInputContainerEnum.DriverLoaderFragment) == 0) {

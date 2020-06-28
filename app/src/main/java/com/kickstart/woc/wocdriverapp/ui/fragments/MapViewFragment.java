@@ -61,6 +61,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
     private boolean shouldGetLiveDirections;
     private String distance;
     private String time;
+    private List<Marker> markers = new ArrayList<>();
 
     public interface MapViewSizeListener {
         void onMapViewSizeChange();
@@ -122,7 +123,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
     }
 
     private void populateLocations() {
-        resetMap();
         // usecase 2: show trip route from rider source to rider destination
         // screens: ride found, enter pin
         if (userClient.isRideAlertAccepted()) {
@@ -147,6 +147,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
     }
 
     private void calculateDirections() {
+        resetMap();
         DirectionsApiRequest directions = new DirectionsApiRequest(mGeoApiContext);
         if (!shouldGetLiveDirections && shouldGetDirections) {
             Log.d(TAG, "calculateDirections, source location: " + source);
@@ -210,16 +211,21 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
         mGoogleMap.getUiSettings().setScrollGesturesEnabled(true);
         mGoogleMap.getUiSettings().setTiltGesturesEnabled(true);
         mGoogleMap.getUiSettings().setZoomGesturesEnabled(true);
-        addMapMarker();
+        Log.d(TAG, "onMapReady");
+        setCameraView();
+        if (!shouldGetDirections && !shouldGetLiveDirections) {
+            addMapMarker();
+        }
     }
 
     private void addMapMarker() {
         resetMap();
-        Marker marker = mGoogleMap.addMarker(new MarkerOptions()
+        Marker mLiveMarker = mGoogleMap.addMarker(new MarkerOptions()
                 .position(driverLatLng)
                 .title(userClient.getDriverDetails().getName()));
-        marker.setTag("live");
-        marker.showInfoWindow();
+        mLiveMarker.setTag("live");
+        mLiveMarker.showInfoWindow();
+        markers.add(mLiveMarker);
         setCameraView();
     }
 
@@ -227,6 +233,13 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
         if (mGoogleMap != null) {
             Log.d(TAG, "resetMap");
             mGoogleMap.clear();
+            for (Marker m : markers) {
+                m.remove();
+            }
+            if (markers.size() > 0) {
+                markers.clear();
+                markers = new ArrayList<>();
+            }
             if (mPolylineData.size() > 0) {
                 mPolylineData.clear();
                 mPolylineData = new ArrayList<>();
@@ -268,23 +281,10 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
             }
             case R.id.btn_reset_map: {
                 if (shouldGetDirections || shouldGetLiveDirections) {
-                    determineMapAction();
-                } else {
-                    addMapMarker();
+                    populateLocations();
                 }
                 break;
             }
-        }
-    }
-
-    private void determineMapAction() {
-        LatLng liveLocation = userClient.getDriverLatLng();
-        if ((driverLatLng.latitude != liveLocation.latitude) || (driverLatLng.longitude != liveLocation.longitude)) {
-            Log.d(TAG, "liveLocation: " + liveLocation.toString());
-            driverLatLng = userClient.getDriverLatLng();
-            source = userClient.getSource();
-            destination = userClient.getDestination();
-            populateLocations();
         }
     }
 
@@ -293,7 +293,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
             @Override
             public void run() {
                 Log.d(TAG, "startUserLocationsRunnable: starting runnable for retrieving updated locations.");
-                determineMapAction();
+                populateLocations();
                 mHandler.postDelayed(mRunnable, WocConstants.LOCATION_UPDATE_INTERVAL);
             }
         }, WocConstants.LOCATION_UPDATE_INTERVAL);
@@ -398,23 +398,28 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
     }
 
     private void showErrorAlert(String errorMessage) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this.getContext());
-        LayoutInflater factory = LayoutInflater.from(getContext());
-        final View view = factory.inflate(R.layout.layout_warning, null);
-        TextView mErrorText = view.findViewById(R.id.errorMessage);
-        if (errorMessage == null || errorMessage.length() == 0) {
-            mErrorText.setText(WocConstants.ERROR_MESSAGE);
-        } else {
-            mErrorText.setText(errorMessage);
-        }
-        builder.setView(view);
-        builder.setCancelable(true)
-                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, final int id) {
-                        dialog.dismiss();
-                    }
-                });
-        AlertDialog alert = builder.create();
-        alert.show();
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                LayoutInflater factory = LayoutInflater.from(getContext());
+                final View view = factory.inflate(R.layout.layout_warning, null);
+                TextView mErrorText = view.findViewById(R.id.errorMessage);
+                if (errorMessage == null || errorMessage.length() == 0) {
+                    mErrorText.setText(WocConstants.ERROR_MESSAGE);
+                } else {
+                    mErrorText.setText(errorMessage);
+                }
+                builder.setView(view);
+                builder.setCancelable(true)
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, final int id) {
+                                dialog.dismiss();
+                            }
+                        });
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
+        });
     }
 }
