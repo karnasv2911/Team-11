@@ -35,7 +35,7 @@ public class LocationService extends Service {
     private final IBinder binder = new WocLocationServiceBinder();
     private LocationCallback locationCallback;
     private FusedLocationProviderClient mFusedLocationClient;
-
+    private MapInputContainerEnum mapInputContainerEnum;
     private UserClient userClient;
     double increment = 0;
 
@@ -114,10 +114,13 @@ public class LocationService extends Service {
                         if (location != null) {
                             double lat = location.getLatitude() + increment;
                             double lng = location.getLongitude() + increment;
+                            mapInputContainerEnum = userClient.getMapInputContainerEnum();
+                            if (mapInputContainerEnum.compareTo(MapInputContainerEnum.DriverRideFoundFragment) == 0
+                            || mapInputContainerEnum.compareTo(MapInputContainerEnum.DriverOnTripFragment) == 0)
                             increment += 0.03; // used to mimic live location
                             Log.d(TAG, "onLocationResult: got location result: Lat: " + lat + ", Lng: " + lng);
                             userClient.saveUserLocation(lat, lng);
-                            if (userClient.isInitialLocationBroadcast() && userClient.getMapInputContainerEnum().compareTo(MapInputContainerEnum.DriverLoaderFragment) == 0) {
+                            if (userClient.isInitialLocationBroadcast() && mapInputContainerEnum.compareTo(MapInputContainerEnum.DriverLoaderFragment) == 0) {
                                 sendMessage();
                             }
                         }
