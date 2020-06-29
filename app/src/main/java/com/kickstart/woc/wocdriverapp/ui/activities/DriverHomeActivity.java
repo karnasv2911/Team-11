@@ -42,14 +42,13 @@ import com.kickstart.woc.wocdriverapp.services.LocationService;
 import com.kickstart.woc.wocdriverapp.ui.fragments.DriverAvailabilityFragment;
 import com.kickstart.woc.wocdriverapp.ui.fragments.DriverHomeFragment;
 import com.kickstart.woc.wocdriverapp.ui.fragments.MapViewFragment;
-import com.kickstart.woc.wocdriverapp.ui.listeners.LocationServiceListener;
 import com.kickstart.woc.wocdriverapp.ui.listeners.PhoneCallListener;
 import com.kickstart.woc.wocdriverapp.ui.listeners.ReplaceInputContainerListener;
 import com.kickstart.woc.wocdriverapp.utils.FragmentUtils;
 import com.kickstart.woc.wocdriverapp.utils.WocConstants;
-import com.kickstart.woc.wocdriverapp.utils.map.ExpandContractMapUtil;
 import com.kickstart.woc.wocdriverapp.utils.map.MapInputContainerEnum;
 import com.kickstart.woc.wocdriverapp.utils.map.UserClient;
+import com.kickstart.woc.wocdriverapp.utils.map.WocMapUtils;
 
 import static com.kickstart.woc.wocdriverapp.utils.WocConstants.ERROR_DIALOG_REQUEST;
 import static com.kickstart.woc.wocdriverapp.utils.WocConstants.MAP_LAYOUT_STATE_CONTRACTED;
@@ -63,12 +62,11 @@ public class DriverHomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         MapViewFragment.MapViewSizeListener,
         ReplaceInputContainerListener,
-        PhoneCallListener,
-        LocationServiceListener {
+        PhoneCallListener {
 
     private static final String TAG = DriverHomeActivity.class.getSimpleName();
 
-    private ExpandContractMapUtil expandContractMapUtil = new ExpandContractMapUtil();
+    private WocMapUtils wocMapUtils = new WocMapUtils();
     private FusedLocationProviderClient mFusedLocationClient;
     private UserClient userClient;
     private FragmentUtils fragmentUtils = new FragmentUtils();
@@ -96,8 +94,10 @@ public class DriverHomeActivity extends AppCompatActivity
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         userClient = (UserClient) getApplicationContext();
 
-        userClient.init();
-
+        if (userClient.isInitialLocationBroadcast()) {
+            userClient.init();
+            userClient.setMapInputContainerEnum(MapInputContainerEnum.DriverLoaderFragment);
+        }
         mapInputContainerEnum = userClient.getMapInputContainerEnum();
         onReplaceInputContainer(mapInputContainerEnum);
         if (checkMapServices()) {
@@ -111,17 +111,17 @@ public class DriverHomeActivity extends AppCompatActivity
 
     @Override
     protected void onPause() {
+        super.onPause();
         // Unregister since the activity is paused.
         LocalBroadcastManager.getInstance(this).unregisterReceiver(
                 mMessageReceiver);
-        super.onPause();
     }
 
     @Override
     protected void onResume() {
+        super.onResume();
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 mMessageReceiver, new IntentFilter(WocConstants.INITIAL_LOCATION_BROADCAST));
-        super.onResume();
     }
 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
@@ -204,11 +204,11 @@ public class DriverHomeActivity extends AppCompatActivity
         FrameLayout mInputViewContainer = findViewById(R.id.input_view_container);
         if (mMapLayoutState == MAP_LAYOUT_STATE_CONTRACTED) {
             mMapLayoutState = MAP_LAYOUT_STATE_EXPANDED;
-            expandContractMapUtil.expandMapAnimation(mMapViewContainer, mapSize, 100,
+            wocMapUtils.expandMapAnimation(mMapViewContainer, mapSize, 100,
                     mInputViewContainer, 100 - mapSize, 0);
         } else if (mMapLayoutState == MAP_LAYOUT_STATE_EXPANDED) {
             mMapLayoutState = MAP_LAYOUT_STATE_CONTRACTED;
-            expandContractMapUtil.contractMapAnimation(mMapViewContainer, 100, mapSize,
+            wocMapUtils.contractMapAnimation(mMapViewContainer, 100, mapSize,
                     mInputViewContainer, 0, 100 - mapSize);
         }
     }
@@ -338,7 +338,7 @@ public class DriverHomeActivity extends AppCompatActivity
     private void getLastKnownLocation() {
         Log.d(TAG, "getLastKnownLocation: called.");
         if (userClient.isInitialLocationBroadcast() && mapInputContainerEnum.compareTo(MapInputContainerEnum.DriverLoaderFragment) == 0) {
-            shouldEnableLocationService(true);
+            startLocationService();
         } else {
             mFusedLocationClient.getLastLocation().addOnCompleteListener(
                     new OnCompleteListener<Location>() {
@@ -358,8 +358,8 @@ public class DriverHomeActivity extends AppCompatActivity
 
     private void startLocationService() {
         if (!isLocationServiceRunning()) {
-            Intent serviceIntent = new Intent(this, LocationService.class);
-            this.startService(serviceIntent);
+            Intent serviceIntent = new Intent(getApplicationContext(), LocationService.class);
+            getApplicationContext().startService(serviceIntent);
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 this.startForegroundService(serviceIntent);
             }
@@ -398,18 +398,6 @@ public class DriverHomeActivity extends AppCompatActivity
                 String dial = "tel: " + number;
                 startActivity(new Intent(Intent.ACTION_CALL, Uri.parse(dial)));
             }
-        }
-    }
-
-    @Override
-    public void shouldEnableLocationService(boolean locationService) {
-        if (locationService) {
-            Log.d(TAG, "starting LocationService");
-            startLocationService();
-        } else {
-            Intent serviceIntent = new Intent(this, LocationService.class);
-            Log.d(TAG, "stopping LocationService");
-            this.stopService(serviceIntent);
         }
     }
 }

@@ -31,21 +31,38 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"/>
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/bottom_margin">
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:layout_marginVertical="@dimen/top_margin"
+        android:layout_marginHorizontal="@dimen/horizontal_margin">
+
+        <Button
+            android:id="@+id/startRide"
+            android:layout_width="120dp"
+            android:layout_height="@dimen/button_small_height"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/rounded_button_blue"
+            android:drawableLeft="@drawable/navigate"
+            android:drawablePadding="4dp"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:text="@string/navigate"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"/>
 
         <Button
             android:id="@+id/endRide"
-            android:layout_width="@dimen/button_width"
-            android:layout_height="@dimen/button_height"
-            android:layout_alignParentBottom="true"
+            android:layout_width="120dp"
+            android:layout_height="@dimen/button_small_height"
             android:layout_centerHorizontal="true"
             android:background="@drawable/rounded_button_blue"
-            android:fontFamily="sans-serif-medium"
             android:text="@string/endRide"
             android:textAllCaps="false"
-            android:textColor="@android:color/white"/>
-    </RelativeLayout>
+            android:textColor="@android:color/white"
+            android:layout_marginLeft="@dimen/horizontal_margin"/>
+
+    </LinearLayout>
 </LinearLayout>

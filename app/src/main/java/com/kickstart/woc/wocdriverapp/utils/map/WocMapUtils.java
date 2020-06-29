@@ -3,7 +3,7 @@ package com.kickstart.woc.wocdriverapp.utils.map;
 import android.animation.ObjectAnimator;
 import android.widget.FrameLayout;
 
-public class ExpandContractMapUtil {
+public class WocMapUtils {
 
     private static final int interval = 800;
 
