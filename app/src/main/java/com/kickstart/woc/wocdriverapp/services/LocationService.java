@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
@@ -31,17 +32,24 @@ import com.kickstart.woc.wocdriverapp.utils.map.UserClient;
 public class LocationService extends Service {
 
     private static final String TAG = "LocationService";
-
+    private final IBinder binder = new WocLocationServiceBinder();
+    private LocationCallback locationCallback;
     private FusedLocationProviderClient mFusedLocationClient;
+    private MapInputContainerEnum mapInputContainerEnum;
     private UserClient userClient;
-    private final static long UPDATE_INTERVAL = 4 * 1000;  /* 4 secs */
-    private final static long FASTEST_INTERVAL = 2000; /* 2 sec */
     double increment = 0;
+
+    public class WocLocationServiceBinder extends Binder {
+        public LocationService getService() {
+            return LocationService.this;
+        }
+    }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        getLocation();
+        return binder;
     }
 
     @Override
@@ -70,17 +78,17 @@ public class LocationService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand: called.");
-        getLocation(intent);
-        return START_NOT_STICKY;
+        getLocation();
+        return Service.START_NOT_STICKY;
     }
 
-    private void getLocation(Intent intent) {
+    private void getLocation() {
         // ---------------------------------- LocationRequest ------------------------------------
         // Create the location request to start receiving updates
         LocationRequest mLocationRequestHighAccuracy = new LocationRequest();
         mLocationRequestHighAccuracy.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequestHighAccuracy.setInterval(UPDATE_INTERVAL);
-        mLocationRequestHighAccuracy.setFastestInterval(FASTEST_INTERVAL);
+        mLocationRequestHighAccuracy.setInterval(WocConstants.UPDATE_INTERVAL);
+        mLocationRequestHighAccuracy.setFastestInterval(WocConstants.FASTEST_INTERVAL);
 
 
         // new Google API SDK v11 uses getFusedLocationProviderClient(this)
@@ -91,38 +99,45 @@ public class LocationService extends Service {
             return;
         }
         Log.d(TAG, "getLocation: getting location information.");
-        mFusedLocationClient.requestLocationUpdates(mLocationRequestHighAccuracy, new LocationCallback() {
-                    @Override
-                    public void onLocationResult(LocationResult locationResult) {
+        wocLocationCallback();
+        mFusedLocationClient.requestLocationUpdates(mLocationRequestHighAccuracy, locationCallback,
+                Looper.myLooper()); // Looper.myLooper tells this to repeat forever until thread is destroyed
+    }
+
+    private void wocLocationCallback() {
+        if (userClient.isDriverAvailable()) {
+            locationCallback = new LocationCallback() {
+                @Override
+                public void onLocationResult(LocationResult locationResult) {
+                    if (userClient.isDriverAvailable()) {
                         Location location = locationResult.getLastLocation();
                         if (location != null) {
-                            double lat = location.getLatitude(); // - increment;
-                            double lng = location.getLongitude(); // + increment;
-//                            increment += 0.03; // used to mimic live location
-                                    Log.d(TAG, "onLocationResult: got location result: Lat: " + lat + ", Lng: " + lng);
+                            double lat = location.getLatitude() + increment;
+                            double lng = location.getLongitude() + increment;
+                            mapInputContainerEnum = userClient.getMapInputContainerEnum();
+                            if (mapInputContainerEnum.compareTo(MapInputContainerEnum.DriverRideFoundFragment) == 0
+                            || mapInputContainerEnum.compareTo(MapInputContainerEnum.DriverOnTripFragment) == 0)
+                            increment += 0.03; // used to mimic live location
+                            Log.d(TAG, "onLocationResult: got location result: Lat: " + lat + ", Lng: " + lng);
                             userClient.saveUserLocation(lat, lng);
-                            if (userClient.isInitialLocationBroadcast() && userClient.getMapInputContainerEnum().compareTo(MapInputContainerEnum.DriverLoaderFragment) == 0) {
+                            if (userClient.isInitialLocationBroadcast() && mapInputContainerEnum.compareTo(MapInputContainerEnum.DriverLoaderFragment) == 0) {
                                 sendMessage();
-                                stopService(intent);
                             }
                         }
+                    } else {
+                        stopSelf();
                     }
-                },
-                Looper.myLooper()); // Looper.myLooper tells this to repeat forever until thread is destroyed
+                }
+            };
+        }  else {
+            Log.d(TAG, "stop...");
+            stopSelf();
+        }
     }
 
     private void sendMessage() {
         Log.d("sender", "Broadcasting message");
-        Intent intent = new Intent(WocConstants.INITIAL_LOCATION_BROADCAST);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    @Override
-    public boolean stopService(Intent name) {
-        super.stopService(name);
-        Log.d(TAG, "stopService: called.");
-        stopForeground(true);
-        stopSelf(START_NOT_STICKY);
-        return true;
+        Intent broadcastIntent = new Intent(WocConstants.INITIAL_LOCATION_BROADCAST);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
     }
 }

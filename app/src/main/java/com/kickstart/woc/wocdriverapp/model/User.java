@@ -15,9 +15,10 @@ public class User implements Serializable {
     private double rating;
     private String source;
     private String destination;
+    private String liveLocation;
     private String timeStamp;
 
-    public User(String id, boolean isVerified, String name, String email, String phone, Integer image, double rating, String source, String destination, String timeStamp) {
+    public User(String id, boolean isVerified, String name, String email, String phone, Integer image, double rating, String source, String destination, String liveLocation, String timeStamp) {
         this.id = id;
         this.isVerified = isVerified;
         this.name = name;
@@ -27,6 +28,7 @@ public class User implements Serializable {
         this.rating = rating;
         this.source = source;
         this.destination = destination;
+        this.liveLocation = liveLocation;
         this.timeStamp = timeStamp;
     }
 
@@ -110,6 +112,14 @@ public class User implements Serializable {
         this.timeStamp = timeStamp;
     }
 
+    public String getLiveLocation() {
+        return liveLocation;
+    }
+
+    public void setLiveLocation(String liveLocation) {
+        this.liveLocation = liveLocation;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -122,6 +132,7 @@ public class User implements Serializable {
                 ", rating=" + rating +
                 ", source='" + source + '\'' +
                 ", destination='" + destination + '\'' +
+                ", liveLocation='" + liveLocation + '\'' +
                 ", timeStamp='" + timeStamp + '\'' +
                 '}';
     }

@@ -38,6 +38,8 @@ public class UserClient extends Application {
     private String[] riderPin;
     private  MapInputContainerEnum mapInputContainerEnum;
     private Set<String> wocEnabledLocations;
+    private User rider;
+    private User driver;
 
     /* Start Map Screen */
     // N/W calls
@@ -46,12 +48,8 @@ public class UserClient extends Application {
         1. Get driver details and set in getDriverDetails
         2. Get list of WocEnabled locations and update in setInWocEnabledLocation
          */
-        if (isInitialBroadcast) {
-            mapInputContainerEnum = MapInputContainerEnum.DriverLoaderFragment;
-        } else {
-            mapInputContainerEnum = MapInputContainerEnum.Unknown;
-        }
-        wocEnabledLocations = new HashSet<>();
+        fetchDriverDetails();
+        fetchWocEnabledLocations();
     }
 
     public void setMapInputContainerEnum(MapInputContainerEnum mapInputContainerEnum) {
@@ -63,14 +61,27 @@ public class UserClient extends Application {
     }
 
     // Retrieve user details from db, mocked driver details are fetched below
-    public User getDriverDetails() {
-        return new User("driverId", true, "driverName", "driver@gmail.com", "1234567890", R.drawable.ic_driver_pin, 4.5, source, null, getCurrentTimeStamp());
+    public void fetchDriverDetails() {
+        driver = new User("driverId", true, "driverName", "driver@gmail.com", "1234567890", R.drawable.ic_driver_pin, 4.5, source, null, null, getCurrentTimeStamp());
     }
 
     // Retrieve user details from db, mocked rider details are fetched below
-    public User getRiderDetails() {
+    public void fetchRiderDetails() {
         riderPin = new String[]{"1", "2", "3", "4"};
-        return new User("riderId", true, "riderName", "rider@gmail.com", "1234567890", R.drawable.ic_rider_pin, 4.5, source, destination, getCurrentTimeStamp());
+        rider = new User("riderId", true, "riderName", "rider@gmail.com", "1234567890", R.drawable.ic_rider_pin, 4.5, source, destination, null, getCurrentTimeStamp());
+    }
+
+    public User getDriverDetails() {
+        return driver;
+    }
+
+    public User getRiderDetails() {
+        return rider;
+    }
+
+    // N/W call
+    public void fetchWocEnabledLocations() {
+        wocEnabledLocations = new HashSet<>();
     }
 
     public String getCurrentTimeStamp() {
@@ -83,25 +94,35 @@ public class UserClient extends Application {
     public void saveUserLocation(double lat, double lng) {
         User driverDetails = getDriverDetails();
         driverLatLng = new LatLng(lat, lng);
+        driverDetails.setLiveLocation(getLiveAddress(driverLatLng));
         driverDetails.setTimeStamp(getCurrentTimeStamp());
         // N/W call to update driver location;
         if (isInitialBroadcast) {
-            checkIfInWocServiceableLocation();
+            checkIfInWocServiceableLocation(driverLatLng);
         }
     }
 
-    private void checkIfInWocServiceableLocation() {
+    private void checkIfInWocServiceableLocation(LatLng latLng) {
+        String address = getLiveAddress(latLng);
+        if (wocEnabledLocations.contains(address)) {
+            // N/W call: driver is able to access map and is in wocEnabledLocation
+        }
+    }
+
+    private String getLiveAddress(LatLng latLng) {
+        String address = "";
         Geocoder geocoder = new Geocoder(getApplicationContext());
         List<Address> addresses = new ArrayList<>();
         try {
-            addresses = geocoder.getFromLocation(driverLatLng.latitude, driverLatLng.longitude, 1);
+            addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
         } catch (IOException e) {
             Log.d(TAG, "Exception while getting address from LatLng");
         }
-        Log.d(TAG, "address from LatLng: " + addresses.get(0));
-        if (wocEnabledLocations != null && addresses.size() > 0 && wocEnabledLocations.contains(addresses.get(0))) {
-            // N/W call: driver is able to access map and is in wocEnabledLocation
+        if (addresses.size() > 0) {
+            address = addresses.get(0).toString();
+            Log.d(TAG, "address from LatLng: " + address);
         }
+        return address;
     }
 
     public LatLng getDriverLatLng() {
@@ -150,6 +171,7 @@ public class UserClient extends Application {
     public void acceptRideAlert() {
         isRideAlertAccepted = true;
         isRiderNotificationReceived = false;
+        fetchRiderDetails();
     }
 
     // N/W to cancel ride alert

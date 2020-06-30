@@ -28,6 +28,7 @@ public class DriverOnTripFragment extends Fragment implements View.OnClickListen
     private UserClient userClient;
     private ReplaceInputContainerListener replaceInputContainerListener;
 
+    private Button mStartRideButton;
     private Button mEndRideButton;
 
     @Override
@@ -44,6 +45,8 @@ public class DriverOnTripFragment extends Fragment implements View.OnClickListen
         TextView mDestination = view.findViewById(R.id.destinationTV);
         mSource.setText(userClient.getSource());
         mDestination.setText(userClient.getDestination());
+        mStartRideButton = view.findViewById(R.id.startRide);
+        mStartRideButton.setOnClickListener(this::onClick);
         mEndRideButton = view.findViewById(R.id.endRide);
         mEndRideButton.setOnClickListener(this::onClick);
         return view;
@@ -52,7 +55,6 @@ public class DriverOnTripFragment extends Fragment implements View.OnClickListen
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-//        navigateToGoogleMaps();
     }
 
     @Override
@@ -76,6 +78,9 @@ public class DriverOnTripFragment extends Fragment implements View.OnClickListen
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.startRide:
+                navigateToGoogleMaps();
+                break;
             case R.id.endRide:
                 showEndRideAlert();
                 break;
@@ -102,6 +107,7 @@ public class DriverOnTripFragment extends Fragment implements View.OnClickListen
             public void onClick(View view) {
                 userClient.endRide();
                 alert.dismiss();
+                userClient.setMapInputContainerEnum(MapInputContainerEnum.DriverTripSummaryFragment);
                 replaceInputContainerListener.onReplaceInputContainer(MapInputContainerEnum.DriverTripSummaryFragment);
             }
         });

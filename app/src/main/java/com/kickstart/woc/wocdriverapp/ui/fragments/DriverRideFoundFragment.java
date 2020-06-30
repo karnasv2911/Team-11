@@ -80,10 +80,12 @@ public class DriverRideFoundFragment extends Fragment implements View.OnClickLis
                 break;
             case R.id.startTrip:
                 userClient.startTrip();
+                userClient.setMapInputContainerEnum(MapInputContainerEnum.DriverEnterRiderPinFragment);
                 replaceInputContainerListener.onReplaceInputContainer(MapInputContainerEnum.DriverEnterRiderPinFragment);
                 break;
             case R.id.cancelRide:
                 userClient.cancelRideRequest();
+                userClient.setMapInputContainerEnum(MapInputContainerEnum.DriverAvailabilityFragment);
                 replaceInputContainerListener.onReplaceInputContainer(MapInputContainerEnum.DriverAvailabilityFragment);
                 break;
         }
