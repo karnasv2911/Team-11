@@ -54,17 +54,13 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
     private UserClient userClient;
     private GeoApiContext mGeoApiContext = null;
     private List<PolylineData> mPolylineData = new ArrayList<>();
-    private String source;
-    private String destination;
-    private LatLng driverLatLng;
-    private boolean shouldGetDirections;
+    private LatLng driverLocation;
     private boolean shouldGetLiveDirections;
     private String distance;
     private String time;
     private List<Marker> markers = new ArrayList<>();
     private String startMarkerTitle;
     private String endMarkerTitle;
-    double increment = 0;
 
     public interface MapViewSizeListener {
         void onMapViewSizeChange();
@@ -113,7 +109,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
         if (mGeoApiContext == null) {
             mGeoApiContext = new GeoApiContext.Builder().apiKey(getString(R.string.google_maps_key)).build();
         }
-        driverLatLng = userClient.getDriverLatLng();
+        driverLocation = userClient.getDriverLatLng();
     }
 
     private void startMapInputContainerEnumRunnable() {
@@ -125,95 +121,49 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
                 } else {
                     Log.d(TAG, "startMapInputContainerEnumRunnable: starting runnable to check screen");
                     mapInputContainerEnum = userClient.getMapInputContainerEnum();
-                    populateLiveMap();
-                    mHandler.postDelayed(mRunnable, WocConstants.UPDATE_INTERVAL);
+                    if (isDriverLocationChanged()) {
+                        driverLocation = userClient.getDriverLatLng();
+                        drawMapRoute();
+                    }
+                    mHandler.postDelayed(mRunnable, WocConstants.LOCATION_UPDATE_INTERVAL);
                 }
             }
         }, WocConstants.UPDATE_INTERVAL);
     }
 
-    private void populateMap() {
+    private boolean isDriverLocationChanged() {
+        LatLng oldLocation = driverLocation;
+        LatLng newLocation = userClient.getDriverLatLng();
+        boolean flag = !oldLocation.equals(newLocation);
+        Log.d(TAG, "isDriverLocationChanged: " + flag + ", oldLocation: " + oldLocation + ", newLocation: " + newLocation);
+        return flag;
+    }
+
+    private void drawMapRoute() {
         mapInputContainerEnum = userClient.getMapInputContainerEnum();
-        Log.d(TAG, "populateMap");
-        switch(mapInputContainerEnum) {
+        Log.d(TAG, "drawMapRoute");
+        switch (mapInputContainerEnum) {
             case DriverRideFoundFragment:
-                calculateDirectionsFromDriverLiveLocationToRiderSource();
+                calculateDirections(userClient.getSource());
                 break;
             case DriverEnterRiderPinFragment:
-                calculateDirectionsFromRiderSourceToRiderDestination();
-                break;
             case DriverOnTripFragment:
-                calculateDirectionsFromDriverLiveLocationToRiderDestination();
+                calculateDirections(userClient.getDestination());
                 break;
+            default:
+                addMapMarker();
         }
     }
 
-    private void populateLiveMap() {
-        mapInputContainerEnum = userClient.getMapInputContainerEnum();
-        Log.d(TAG, "populateMapLive");
-        switch(mapInputContainerEnum) {
-            case DriverRideFoundFragment:
-                calculateDirectionsFromDriverLiveLocationToRiderSource();
-                break;
-            case DriverOnTripFragment:
-                calculateDirectionsFromDriverLiveLocationToRiderDestination();
-                break;
-        }
-    }
-
-    private void calculateDirectionsFromRiderSourceToRiderDestination() {
-        if (mapInputContainerEnum.compareTo(MapInputContainerEnum.DriverEnterRiderPinFragment) == 0) {
-            Log.d(TAG, "calculateDirectionsFromRiderSourceToRiderDestination");
-            source = userClient.getSource();
-            destination = userClient.getDestination();
-            shouldGetDirections = true;
-            startMarkerTitle = source;
-            endMarkerTitle = destination;
-            calculateDirections(null, null, source, destination);
-        }
-    }
-
-    private void calculateDirectionsFromDriverLiveLocationToRiderSource() {
-        if (mapInputContainerEnum.compareTo(MapInputContainerEnum.DriverRideFoundFragment) == 0) {
-            Log.d(TAG, "calculateDirectionsFromDriverLiveLocationToRiderSource");
-            driverLatLng = userClient.getDriverLatLng();
-            driverLatLng = new LatLng(driverLatLng.latitude + increment, driverLatLng.longitude + increment);
-            increment += 0.05; // to mimic driver movement
-            source = userClient.getSource();
-            shouldGetLiveDirections = true;
-            startMarkerTitle = userClient.getDriverDetails().getName();
-            endMarkerTitle = source;
-            calculateDirections(null, driverLatLng, null, source);
-        }
-    }
-
-    private void calculateDirectionsFromDriverLiveLocationToRiderDestination() {
-        if (mapInputContainerEnum.compareTo(MapInputContainerEnum.DriverOnTripFragment) == 0) {
-            Log.d(TAG, "calculateDirectionsFromRiderLiveLocationToRiderDestination");
-            driverLatLng = userClient.getDriverLatLng();
-            destination = userClient.getDestination();
-            shouldGetLiveDirections = true;
-            startMarkerTitle = userClient.getRiderDetails().getName();
-            endMarkerTitle = destination;
-            calculateDirections(driverLatLng, null, null, destination);
-        }
-    }
-
-    private void calculateDirections(LatLng riderLiveLocation, LatLng driverLiveLocation, String sourceAddress, String destinationAddress) {
+    private void calculateDirections(String destinationAddress) {
         resetMap();
-        LatLng liveLatLng = riderLiveLocation;
-        if (liveLatLng == null) {
-            liveLatLng = driverLiveLocation;
-        }
+        shouldGetLiveDirections = true;
+        startMarkerTitle = userClient.getDriverDetails().getName();
+        endMarkerTitle = destinationAddress;
         DirectionsApiRequest directions = new DirectionsApiRequest(mGeoApiContext);
-        if (sourceAddress != null) {
-            Log.d(TAG, "calculateDirections, source location: " + sourceAddress);
-            directions.origin(sourceAddress);
-        } else if (liveLatLng != null) {
-            Log.d(TAG, "calculateDirections, live location: " + liveLatLng.latitude + ", " + liveLatLng.longitude);
-            com.google.maps.model.LatLng latLng = new com.google.maps.model.LatLng(liveLatLng.latitude, liveLatLng.longitude);
-            directions.origin(latLng);
-        }
+        Log.d(TAG, "calculateDirections, live location: " + driverLocation.latitude + ", " + driverLocation.longitude);
+        com.google.maps.model.LatLng latLng = new com.google.maps.model.LatLng(driverLocation.latitude, driverLocation.longitude);
+        directions.origin(latLng);
         Log.d(TAG, "calculateDirections, destination location: " + destinationAddress);
         directions.destination(destinationAddress).setCallback(new PendingResult.Callback<DirectionsResult>() {
             @Override
@@ -270,16 +220,13 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
         mGoogleMap.getUiSettings().setZoomGesturesEnabled(true);
         Log.d(TAG, "onMapReady");
         setCameraView();
-        if (!shouldGetDirections && !shouldGetLiveDirections) {
-            addMapMarker();
-        }
-        populateMap();
+        drawMapRoute();
     }
 
     private void addMapMarker() {
         resetMap();
         Marker mLiveMarker = mGoogleMap.addMarker(new MarkerOptions()
-                .position(driverLatLng)
+                .position(driverLocation)
                 .title(userClient.getDriverDetails().getName()));
         mLiveMarker.setTag("live");
         mLiveMarker.showInfoWindow();
@@ -307,7 +254,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
 
     private void setCameraView() {
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                driverLatLng, WocConstants.DEFAULT_ZOOM));
+                driverLocation, WocConstants.DEFAULT_ZOOM));
     }
 
     @Override
@@ -336,12 +283,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
                 break;
             }
             case R.id.btn_reset_map: {
-                if (shouldGetDirections) {
-                    populateMap();
-                }
-                if (shouldGetLiveDirections) {
-                    populateLiveMap();
-                }
+                drawMapRoute();
                 break;
             }
         }
@@ -447,7 +389,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
                 final View view = factory.inflate(R.layout.layout_warning, null);
                 TextView mErrorText = view.findViewById(R.id.errorMessage);
                 if (errorMessage == null || errorMessage.length() == 0) {
-                    mErrorText.setText(WocConstants.ERROR_MESSAGE);
+                    mErrorText.setText(getResources().getText(R.string.error));
                 } else {
                     mErrorText.setText(errorMessage);
                 }

@@ -28,9 +28,7 @@ public class UserClient extends Application {
     private String distance; // = "12 km";
     private String time; // = "35 min";
     private String amount = "120";
-    private boolean isLocationServiceable;
     private boolean isDriverAvailable = true;
-    private boolean isInWocEnabledLocation;
     private boolean isRiderNotificationReceived;
     private boolean isRideAlertAccepted;
     private boolean isTripStarted;
@@ -40,6 +38,8 @@ public class UserClient extends Application {
     private Set<String> wocEnabledLocations;
     private User rider;
     private User driver;
+    private String contactSupport;
+    private String rideId;
 
     /* Start Map Screen */
     // N/W calls
@@ -48,8 +48,17 @@ public class UserClient extends Application {
         1. Get driver details and set in getDriverDetails
         2. Get list of WocEnabled locations and update in setInWocEnabledLocation
          */
+        getInitialConfigs();
         fetchDriverDetails();
-        fetchWocEnabledLocations();
+    }
+
+    // N/W call
+    public void getInitialConfigs() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("wocEnabledLocations", new HashSet<>());
+        map.put("contactSupport", "1234567890");
+        wocEnabledLocations = (Set<String>) map.get("wocEnabledLocations");
+        contactSupport = (String) map.get("contactSupport");
     }
 
     public void setMapInputContainerEnum(MapInputContainerEnum mapInputContainerEnum) {
@@ -66,7 +75,7 @@ public class UserClient extends Application {
     }
 
     // Retrieve user details from db, mocked rider details are fetched below
-    public void fetchRiderDetails() {
+    public void fetchRiderDetails(String rideId) {
         riderPin = new String[]{"1", "2", "3", "4"};
         rider = new User("riderId", true, "riderName", "rider@gmail.com", "1234567890", R.drawable.ic_rider_pin, 4.5, source, destination, null, getCurrentTimeStamp());
     }
@@ -79,9 +88,8 @@ public class UserClient extends Application {
         return rider;
     }
 
-    // N/W call
-    public void fetchWocEnabledLocations() {
-        wocEnabledLocations = new HashSet<>();
+    public String getContactSupport() {
+        return contactSupport;
     }
 
     public String getCurrentTimeStamp() {
@@ -160,10 +168,15 @@ public class UserClient extends Application {
         // send driver details
     }
 
+    public void setRideAlertNotificationReceived(boolean flag, String id) {
+        isRiderNotificationReceived = flag;
+        rideId = id;
+    }
+
     // When push notification received, update rider
     public boolean getRideAlert() {
         // Get rider details from notification and set in getRiderDetails
-        isRiderNotificationReceived = true;
+//        isRiderNotificationReceived = true;
         return isRiderNotificationReceived;
     }
 
@@ -171,13 +184,19 @@ public class UserClient extends Application {
     public void acceptRideAlert() {
         isRideAlertAccepted = true;
         isRiderNotificationReceived = false;
-        fetchRiderDetails();
+        fetchRiderDetails(rideId);
     }
 
     // N/W to cancel ride alert
     public void cancelRideAlert() {
         isRideAlertAccepted = false;
         isRiderNotificationReceived = false;
+        cancelRide();
+    }
+
+    private void cancelRide() {
+        // N/W to BE to cancel ride
+        rideId = null;
     }
 
     public boolean isRideAlertAccepted() {
@@ -189,7 +208,7 @@ public class UserClient extends Application {
     // Should we log navigate to map or callRider or contactSupport
     // N/W to cancel ride request
     public void cancelRideRequest() {
-
+        cancelRide();
     }
 
     public void startTrip() {

@@ -11,11 +11,9 @@ public class WocConstants {
     public static final int MAP_LAYOUT_STATE_CONTRACTED = 0;
     public static final int MAP_LAYOUT_STATE_EXPANDED = 1;
     public static final int REQUEST_CALL = 1;
-    public static final String CONTACT_SUPPORT = "1234567890";
-    public static final int LOCATION_UPDATE_INTERVAL = 30 * 1000;
-    public final static long UPDATE_INTERVAL = 4 * 1000;  /* 4 secs */
-    public final static long FASTEST_INTERVAL = 2000; /* 2 sec */
+    public static final long LOCATION_UPDATE_INTERVAL = 30 * 1000;
+    public static final long UPDATE_INTERVAL = 4 * 1000;
+    public static final long FASTEST_INTERVAL = 2000;
     public static final int DEFAULT_ZOOM = 15;
-    public static final String ERROR_MESSAGE = "Something went wrong. Please retry after some time!";
-    public final static String INITIAL_LOCATION_BROADCAST = "initial_location_broadcast";
+    public static final String INITIAL_LOCATION_BROADCAST = "initial_location_broadcast";
 }
