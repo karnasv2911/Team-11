@@ -103,7 +103,7 @@ public class DriverAvailabilityFragment extends Fragment implements View.OnClick
                 }
                 break;
             case R.id.btnContactSupport:
-                phoneCallListener.onMakePhoneCall(MapInputContainerEnum.DriverAvailabilityFragment, WocConstants.CONTACT_SUPPORT);
+                phoneCallListener.onMakePhoneCall(MapInputContainerEnum.DriverAvailabilityFragment, userClient.getContactSupport());
                 break;
         }
     }
@@ -113,6 +113,11 @@ public class DriverAvailabilityFragment extends Fragment implements View.OnClick
         LayoutInflater factory = LayoutInflater.from(getContext());
         View view = factory.inflate(R.layout.layout_ride_accept_timer_details, null);
         final TextView tvTimer = view.findViewById(R.id.timer);
+        Button mAcceptButton = view.findViewById(R.id.acceptRide);
+        Button mRejectButton = view.findViewById(R.id.rejectRide);
+        builder.setView(view)
+                .setCancelable(true);
+        AlertDialog alert = builder.create();
         CountDownTimer timer = new CountDownTimer(90000, 1000) {
             @Override
             public void onTick(long milliSecondsLeftToAccept) {
@@ -123,15 +128,13 @@ public class DriverAvailabilityFragment extends Fragment implements View.OnClick
             @Override
             public void onFinish() {
                 tvTimer.setText("0");
+                if (alert.isShowing()) {
+                    alert.dismiss();
+                }
                 userClient.cancelRideAlert();
             }
         };
         timer.start();
-        Button mAcceptButton = view.findViewById(R.id.acceptRide);
-        Button mRejectButton = view.findViewById(R.id.rejectRide);
-        builder.setView(view)
-                .setCancelable(true);
-        AlertDialog alert = builder.create();
         mAcceptButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

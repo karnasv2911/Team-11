@@ -115,9 +115,7 @@ public class LocationService extends Service {
                             double lat = location.getLatitude() + increment;
                             double lng = location.getLongitude() + increment;
                             mapInputContainerEnum = userClient.getMapInputContainerEnum();
-                            if (mapInputContainerEnum.compareTo(MapInputContainerEnum.DriverRideFoundFragment) == 0
-                            || mapInputContainerEnum.compareTo(MapInputContainerEnum.DriverOnTripFragment) == 0)
-                            increment += 0.03; // used to mimic live location
+//                            increment -= 0.03; // used to mimic live location
                             Log.d(TAG, "onLocationResult: got location result: Lat: " + lat + ", Lng: " + lng);
                             userClient.saveUserLocation(lat, lng);
                             if (userClient.isInitialLocationBroadcast() && mapInputContainerEnum.compareTo(MapInputContainerEnum.DriverLoaderFragment) == 0) {

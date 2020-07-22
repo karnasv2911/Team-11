@@ -106,7 +106,7 @@ public class DriverTripSummaryFragment extends Fragment implements View.OnClickL
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnContactSupport:
-                phoneCallListener.onMakePhoneCall(MapInputContainerEnum.DriverTripSummaryFragment, WocConstants.CONTACT_SUPPORT);
+                phoneCallListener.onMakePhoneCall(MapInputContainerEnum.DriverTripSummaryFragment, userClient.getContactSupport());
                 break;
             case R.id.rateRider:
                 showRateTripAlert();

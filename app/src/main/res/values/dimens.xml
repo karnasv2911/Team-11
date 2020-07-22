@@ -21,7 +21,7 @@
     <dimen name="button_small_width">160dp</dimen>
     <dimen name="button_small_height">32dp</dimen>
     <dimen name="button_small_text_size">12dp</dimen>
-    <dimen name="search_image_size">64dp</dimen>
+    <dimen name="search_image_size">48dp</dimen>
     <dimen name="driver_image_size">80dp</dimen>
 
     <dimen name="text_input_16">16dp</dimen>

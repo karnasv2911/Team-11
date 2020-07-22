@@ -130,7 +130,7 @@ public class DriverEnterRiderPinFragment extends Fragment implements View.OnClic
                 }
                 break;
             case R.id.btnContactSupport:
-                phoneCallListener.onMakePhoneCall(MapInputContainerEnum.DriverEnterRiderPinFragment, WocConstants.CONTACT_SUPPORT);
+                phoneCallListener.onMakePhoneCall(MapInputContainerEnum.DriverEnterRiderPinFragment, userClient.getContactSupport());
                 break;
         }
     }
@@ -141,7 +141,7 @@ public class DriverEnterRiderPinFragment extends Fragment implements View.OnClic
         final View view = factory.inflate(R.layout.layout_warning, null);
         TextView mErrorText = view.findViewById(R.id.errorMessage);
         if (errorMessage == null || errorMessage.length() == 0) {
-            mErrorText.setText(WocConstants.ERROR_MESSAGE);
+            mErrorText.setText(getResources().getText(R.string.error));
         } else {
             mErrorText.setText(errorMessage);
         }

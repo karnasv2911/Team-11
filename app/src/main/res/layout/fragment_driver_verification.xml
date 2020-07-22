@@ -38,11 +38,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-medium"
-        android:text="@string/driverVerfPendingText"
+        android:text="@string/verfText"
         android:textColor="@color/colorAccent"
         android:textSize="12sp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginVertical="@dimen/vertical_margin"/>
+        android:layout_marginHorizontal="@dimen/vertical_margin"/>
 
     <include
         layout="@layout/layout_contact_support" />
