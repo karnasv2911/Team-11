@@ -32,24 +32,16 @@ import com.kickstart.woc.wocdriverapp.utils.map.UserClient;
 public class LocationService extends Service {
 
     private static final String TAG = "LocationService";
-    private final IBinder binder = new WocLocationServiceBinder();
     private LocationCallback locationCallback;
     private FusedLocationProviderClient mFusedLocationClient;
     private MapInputContainerEnum mapInputContainerEnum;
     private UserClient userClient;
     double increment = 0;
 
-    public class WocLocationServiceBinder extends Binder {
-        public LocationService getService() {
-            return LocationService.this;
-        }
-    }
-
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        getLocation();
-        return binder;
+        return null;
     }
 
     @Override
