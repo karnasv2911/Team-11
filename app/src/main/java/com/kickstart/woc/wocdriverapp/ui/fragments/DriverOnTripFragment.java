@@ -108,7 +108,7 @@ public class DriverOnTripFragment extends Fragment implements View.OnClickListen
                 userClient.endRide();
                 alert.dismiss();
                 userClient.setMapInputContainerEnum(MapInputContainerEnum.DriverTripSummaryFragment);
-                replaceInputContainerListener.onReplaceInputContainer(MapInputContainerEnum.DriverTripSummaryFragment);
+                replaceInputContainerListener.onReplaceInputContainer();
             }
         });
         alert.show();

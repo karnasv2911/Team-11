@@ -4,11 +4,16 @@ import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.location.Location;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
@@ -25,6 +30,8 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.kickstart.woc.wocdriverapp.R;
+import com.kickstart.woc.wocdriverapp.ui.activities.DriverHomeActivity;
 import com.kickstart.woc.wocdriverapp.utils.WocConstants;
 import com.kickstart.woc.wocdriverapp.utils.map.MapInputContainerEnum;
 import com.kickstart.woc.wocdriverapp.utils.map.UserClient;
@@ -49,19 +56,33 @@ public class LocationService extends Service {
         super.onCreate();
 
         userClient = (UserClient) getApplicationContext();
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
 
         if (Build.VERSION.SDK_INT >= 26) {
-            String CHANNEL_ID = "my_channel_01";
+            String CHANNEL_ID = "wocdriverapp";
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
-                    "My Channel",
+                    "wocdriverapp",
                     NotificationManager.IMPORTANCE_DEFAULT);
 
             ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
 
-            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                    .setContentTitle("")
-                    .setContentText("").build();
+            Intent intent = new Intent(this, DriverHomeActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 1234, intent, PendingIntent.FLAG_ONE_SHOT);
+
+            Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            Notification notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
+                    .setContentTitle(getResources().getString(R.string.location))
+                    .setContentText(getResources().getString(R.string.locationDetail))
+                    .setSmallIcon(R.drawable.app_logo)
+                    .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.app_logo))
+                    .setAutoCancel(true)
+                    .setSound(defaultSoundUri)
+                    .setColor(Color.parseColor("#FFD600"))
+                    .setContentIntent(pendingIntent)
+                    .setChannelId("wocdriverapp")
+                    .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .build();
 
             startForeground(1, notification);
         }
