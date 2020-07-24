@@ -22,8 +22,8 @@ import java.util.Set;
 public class UserClient extends Application {
 
     private static final String TAG = UserClient.class.getSimpleName();
-    private String destination = "Airport, KIAL Rd, Devanahalli, Bengaluru, Karnataka";
-    private String source = "RMZ Eco World, Bellandur, Bengaluru, Karnataka";
+    private String destination = "";
+    private String source = "";
     private LatLng driverLatLng;
     private String distance; // = "12 km";
     private String time; // = "35 min";
@@ -65,6 +65,15 @@ public class UserClient extends Application {
         isInitCallCompleted = true;
     }
 
+    public void reset() {
+        source = null;
+        destination = null;
+        isRiderNotificationReceived = false;
+        isRideAlertAccepted = false;
+        isRideRequestCancelledByRider = false;
+        isTripStarted = false;
+    }
+
     public boolean isInitCallCompleted() {
         return isInitCallCompleted;
     }
@@ -79,7 +88,7 @@ public class UserClient extends Application {
 
     // Retrieve user details from db, mocked driver details are fetched below
     public void fetchDriverDetails() {
-        driver = new User("driverId", false, "driverName", "driver@gmail.com", "1234567890", R.drawable.ic_driver_pin, 4.5, source, null, null, getCurrentTimeStamp());
+        driver = new User("driverId", true, "driverName", "driver@gmail.com", "1234567890", R.drawable.ic_driver_pin, 4.5, source, null, null, getCurrentTimeStamp());
         isDriverVerified = getDriverDetails().isVerified();
         if (isDriverVerified) {
             isDriverAvailable = true;
@@ -89,7 +98,9 @@ public class UserClient extends Application {
     // Retrieve user details from db, mocked rider details are fetched below
     public void fetchRiderDetails(String rideId) {
         riderPin = new String[]{"1", "2", "3", "4"};
-        rider = new User("riderId", true, "riderName", "rider@gmail.com", "1234567890", R.drawable.ic_rider_pin, 4.5, source, destination, null, getCurrentTimeStamp());
+        rider = new User("riderId", true, "riderName", "rider@gmail.com", "1234567890", R.drawable.ic_rider_pin, 4.5, "RMZ Eco World, Bellandur, Bengaluru, Karnataka", "Airport, KIAL Rd, Devanahalli, Bengaluru, Karnataka", null, getCurrentTimeStamp());
+        source = rider.getSource();
+        destination = rider.getDestination();
     }
 
     public User getDriverDetails() {

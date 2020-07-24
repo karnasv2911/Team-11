@@ -113,6 +113,7 @@ public class DriverRideFoundFragment extends Fragment implements View.OnClickLis
             public void run() {
                 if (userClient.isRideRequestCancelledByRider()) {
                     Log.d(TAG, "ride cancelled by rider");
+                    userClient.reset();
                     userClient.setMapInputContainerEnum(MapInputContainerEnum.DriverAvailabilityFragment);
                     replaceInputContainerListener.onReplaceInputContainer();
                     mHandler.removeCallbacks(mRunnable);

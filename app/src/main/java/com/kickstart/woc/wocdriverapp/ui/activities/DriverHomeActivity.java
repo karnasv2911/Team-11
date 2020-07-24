@@ -399,6 +399,7 @@ public class DriverHomeActivity extends AppCompatActivity
                     onReplaceInputContainer();
                     mHandler.removeCallbacks(mRunnable);
                 } else if (userClient.isDriverVerified()) {
+                    userClient.reset();
                     Log.d(TAG, "driver verified");
                     userClient.setMapInputContainerEnum(MapInputContainerEnum.DriverLoaderFragment);
                     onReplaceInputContainer();
@@ -416,7 +417,7 @@ public class DriverHomeActivity extends AppCompatActivity
                         userClient.setMapInputContainerEnum(MapInputContainerEnum.DriverLoaderFragment);
                         onReplaceInputContainer();
                     }
-                    Log.d(TAG, "startDriverVerificationStartRunnable: starting runnable to check if driver is verified");
+                    Log.d(TAG, "startDriverRunnable: starting runnable to check if driver is verified");
                     mHandler.postDelayed(mRunnable, WocConstants.UPDATE_INTERVAL);
                 }
             }
@@ -427,5 +428,8 @@ public class DriverHomeActivity extends AppCompatActivity
     public void onDestroy() {
         super.onDestroy();
         mHandler.removeCallbacks(mRunnable);
+        Intent serviceIntent = new Intent(this, LocationService.class);
+        Log.d(TAG, "stopping LocationService");
+        this.stopService(serviceIntent);
     }
 }
