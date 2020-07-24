@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import com.kickstart.woc.wocdriverapp.R;
 import com.kickstart.woc.wocdriverapp.model.User;
 import com.kickstart.woc.wocdriverapp.ui.listeners.PhoneCallListener;
 import com.kickstart.woc.wocdriverapp.ui.listeners.ReplaceInputContainerListener;
+import com.kickstart.woc.wocdriverapp.utils.WocConstants;
 import com.kickstart.woc.wocdriverapp.utils.map.MapInputContainerEnum;
 import com.kickstart.woc.wocdriverapp.utils.map.UserClient;
 
@@ -27,6 +29,8 @@ public class DriverRideFoundFragment extends Fragment implements View.OnClickLis
     private User rider;
     private ReplaceInputContainerListener replaceInputContainerListener;
     private PhoneCallListener phoneCallListener;
+    private Handler mHandler = new Handler();
+    private Runnable mRunnable;
 
     private Button mNavigateToRiderButton;
     private Button mCallRiderButton;
@@ -52,6 +56,7 @@ public class DriverRideFoundFragment extends Fragment implements View.OnClickLis
         mCallRiderButton.setOnClickListener(this::onClick);
         mStartTripButton.setOnClickListener(this::onClick);
         mCancelRideButton.setOnClickListener(this::onClick);
+        startRideCancelledRunnable();
         return view;
     }
 
@@ -81,12 +86,12 @@ public class DriverRideFoundFragment extends Fragment implements View.OnClickLis
             case R.id.startTrip:
                 userClient.startTrip();
                 userClient.setMapInputContainerEnum(MapInputContainerEnum.DriverEnterRiderPinFragment);
-                replaceInputContainerListener.onReplaceInputContainer(MapInputContainerEnum.DriverEnterRiderPinFragment);
+                replaceInputContainerListener.onReplaceInputContainer();
                 break;
             case R.id.cancelRide:
                 userClient.cancelRideRequest();
                 userClient.setMapInputContainerEnum(MapInputContainerEnum.DriverAvailabilityFragment);
-                replaceInputContainerListener.onReplaceInputContainer(MapInputContainerEnum.DriverAvailabilityFragment);
+                replaceInputContainerListener.onReplaceInputContainer();
                 break;
         }
     }
@@ -100,5 +105,28 @@ public class DriverRideFoundFragment extends Fragment implements View.OnClickLis
                 startActivity(intent);
             }
         }, 1000);
+    }
+
+    private void startRideCancelledRunnable() {
+        mHandler.postDelayed(mRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (userClient.isRideRequestCancelledByRider()) {
+                    Log.d(TAG, "ride cancelled by rider");
+                    userClient.setMapInputContainerEnum(MapInputContainerEnum.DriverAvailabilityFragment);
+                    replaceInputContainerListener.onReplaceInputContainer();
+                    mHandler.removeCallbacks(mRunnable);
+                } else {
+                    Log.d(TAG, "startRideCancelledRunnable: starting runnable to check if ride got cancelled");
+                    mHandler.postDelayed(mRunnable, WocConstants.UPDATE_INTERVAL);
+                }
+            }
+        }, WocConstants.UPDATE_INTERVAL);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mHandler.removeCallbacks(mRunnable);
     }
 }

@@ -126,7 +126,7 @@ public class DriverEnterRiderPinFragment extends Fragment implements View.OnClic
                     showErrorAlert("Please enter a valid pin.");
                 } else {
                     userClient.setMapInputContainerEnum(MapInputContainerEnum.DriverOnTripFragment);
-                    replaceInputContainerListener.onReplaceInputContainer(MapInputContainerEnum.DriverOnTripFragment);
+                    replaceInputContainerListener.onReplaceInputContainer();
                 }
                 break;
             case R.id.btnContactSupport:

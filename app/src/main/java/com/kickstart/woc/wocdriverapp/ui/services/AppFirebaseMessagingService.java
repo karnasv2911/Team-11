@@ -22,7 +22,6 @@ import com.kickstart.woc.wocdriverapp.R;
 import com.kickstart.woc.wocdriverapp.ui.activities.DriverHomeActivity;
 import com.kickstart.woc.wocdriverapp.utils.LogUtils;
 import com.kickstart.woc.wocdriverapp.utils.WoCPushNotificationsUtil;
-import com.kickstart.woc.wocdriverapp.utils.map.UserClient;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +29,6 @@ import java.util.Map;
 public class AppFirebaseMessagingService extends FirebaseMessagingService {
     public static final String TAG = AppFirebaseMessagingService.class.getSimpleName();
     private static int count = 0;
-    private UserClient userClient;
     private WoCPushNotificationsUtil woCPushNotificationsUtil;
 
     public AppFirebaseMessagingService() {

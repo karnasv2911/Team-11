@@ -28,21 +28,15 @@ public class WoCPushNotificationsUtil {
 
         switch (identifier) {
             case "DRIVER_VERIFICATION":
-                boolean isVerified = Boolean.valueOf((String) bundle.get("isVerified"));
-                if (isVerified) {
-                    userClient.setMapInputContainerEnum(MapInputContainerEnum.DriverAvailabilityFragment);
-                } else {
-                    userClient.setMapInputContainerEnum(MapInputContainerEnum.DriverVerificationFragment);
-                }
+                userClient.setDriverVerified(true);
+                userClient.setDriverAvailable(true);
                 break;
             case "RIDE_REQUEST_FOUND":
-                String rideId = (String) bundle.get("rideId");
-                userClient.setRideAlertNotificationReceived(true, rideId);
-                userClient.setMapInputContainerEnum(MapInputContainerEnum.DriverAvailabilityFragment);
+                String rideId = (String) bundle.get("rideRequestId");
+                userClient.setRideAlertNotificationReceived(rideId);
                 break;
-            case "RIDE_CANCELLED":
-                userClient.setRideAlertNotificationReceived(false, null);
-                userClient.setMapInputContainerEnum(MapInputContainerEnum.DriverAvailabilityFragment);
+            case "RIDE_CANCELLED_BY_RIDER":
+                userClient.setRideRequestCancelledByRider();
                 break;
             default:
         }

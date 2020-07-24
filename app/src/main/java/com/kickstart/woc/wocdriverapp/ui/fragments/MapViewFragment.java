@@ -55,7 +55,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
     private GeoApiContext mGeoApiContext = null;
     private List<PolylineData> mPolylineData = new ArrayList<>();
     private LatLng driverLocation;
-    private boolean shouldGetLiveDirections;
     private String distance;
     private String time;
     private List<Marker> markers = new ArrayList<>();
@@ -150,14 +149,15 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
             case DriverOnTripFragment:
                 calculateDirections(userClient.getDestination());
                 break;
-            default:
+            case DriverAvailabilityFragment:
                 addMapMarker();
+                break;
         }
+        setCameraView();
     }
 
     private void calculateDirections(String destinationAddress) {
         resetMap();
-        shouldGetLiveDirections = true;
         startMarkerTitle = userClient.getDriverDetails().getName();
         endMarkerTitle = destinationAddress;
         DirectionsApiRequest directions = new DirectionsApiRequest(mGeoApiContext);
@@ -219,7 +219,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
         mGoogleMap.getUiSettings().setTiltGesturesEnabled(true);
         mGoogleMap.getUiSettings().setZoomGesturesEnabled(true);
         Log.d(TAG, "onMapReady");
-        setCameraView();
         drawMapRoute();
     }
 
@@ -231,7 +230,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback,
         mLiveMarker.setTag("live");
         mLiveMarker.showInfoWindow();
         markers.add(mLiveMarker);
-        setCameraView();
     }
 
     private void resetMap() {
