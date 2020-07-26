@@ -67,6 +67,8 @@
     <string name="duration">30</string>
     <string name="verfText">Your verification is currently pending. Once the Kickstart admin team reviews your enrollment and verifies your profile, you will be able to accept rides. In case of further queries, please click on Contact Support.</string>
     <string name="error">Something went wrong. Please retry after some time!</string>
+    <string name="location">Live location</string>
+    <string name="locationDetail">Service used to send live location</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 

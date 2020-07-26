@@ -20,24 +20,13 @@ public class DriverHomeFragment extends Fragment {
     private static final String TAG = DriverHomeFragment.class.getSimpleName();
 
     private FragmentUtils fragmentUtils = new FragmentUtils();
-    private UserClient userClient;
     private MapInputContainerEnum mapInputContainerEnum;
+    private UserClient userClient;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         userClient = (UserClient) getContext().getApplicationContext();
-        if (getArguments() != null) {
-            String enumKey = (String) getArguments().get(getString(R.string.intent_input_container));
-            mapInputContainerEnum = Enum.valueOf(MapInputContainerEnum.class, enumKey);
-        }
-        if (mapInputContainerEnum.compareTo(MapInputContainerEnum.Unknown) == 0) {
-            if (userClient.isDriverVerified()) {
-                mapInputContainerEnum = MapInputContainerEnum.DriverAvailabilityFragment;
-            } else {
-                mapInputContainerEnum = MapInputContainerEnum.DriverVerificationFragment;
-            }
-        }
     }
 
     @Override
@@ -50,13 +39,13 @@ public class DriverHomeFragment extends Fragment {
     }
 
     private void renderInputViewContainer() {
+        mapInputContainerEnum = userClient.getMapInputContainerEnum();
         switch (mapInputContainerEnum) {
             case DriverLoaderFragment:
                 fragmentUtils.replaceFragment(R.id.driverHomeContainer, TAG, getFragmentManager(), new DriverLoaderFragment());
                 break;
             case DriverVerificationFragment:
-                fragmentUtils.replaceFragment(R.id.map_view_container, TAG, getFragmentManager(), new MapViewFragment());
-                fragmentUtils.replaceFragment(R.id.input_view_container, TAG, getFragmentManager(), new DriverVerificationFragment());
+                fragmentUtils.replaceFragment(R.id.driverHomeContainer, TAG, getFragmentManager(), new DriverVerificationFragment());
                 break;
             case DriverAvailabilityFragment:
                 fragmentUtils.replaceFragment(R.id.map_view_container, TAG, getFragmentManager(), new MapViewFragment());

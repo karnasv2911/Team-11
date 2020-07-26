@@ -11,8 +11,8 @@
             android:layout_height="match_parent" />
 
         <ImageButton
-            android:layout_width="35dp"
-            android:layout_height="35dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:src="@drawable/ic_full_screen"
             android:background="@color/white"
             android:layout_alignParentRight="true"
@@ -23,8 +23,8 @@
             android:id="@+id/btn_full_screen_map"/>
 
         <ImageButton
-            android:layout_width="35dp"
-            android:layout_height="35dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:src="@drawable/ic_locate"
             android:background="@color/white"
             android:layout_alignParentLeft="true"

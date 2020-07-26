@@ -3,6 +3,8 @@ package com.kickstart.woc.wocdriverapp.ui.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +31,8 @@ public class DriverAvailabilityFragment extends Fragment implements View.OnClick
     private UserClient userClient;
     private ReplaceInputContainerListener replaceInputContainerListener;
     private PhoneCallListener phoneCallListener;
+    private Handler mHandler = new Handler();
+    private Runnable mRunnable;
 
     private Button mContactSupportButton;
     private Switch mSwitchCompat;
@@ -52,7 +56,6 @@ public class DriverAvailabilityFragment extends Fragment implements View.OnClick
         mSwitchCompat.setOnClickListener(this::onClick);
 
         if (userClient.isDriverAvailable()) {
-            userClient.setDriverAvailable(true);
             mSwitchCompat.setChecked(true);
             mAvailabilityText.setText(getString(R.string.dOnDuty));
             mAvailabilityText.setBackground(getResources().getDrawable(R.drawable.blue_border_on));
@@ -66,9 +69,7 @@ public class DriverAvailabilityFragment extends Fragment implements View.OnClick
         super.onViewCreated(view, savedInstanceState);
         if (userClient.isDriverAvailable()) {
             userClient.sendRideRequest();
-            if (!userClient.isRideAlertAccepted() && userClient.getRideAlert()) {
-                showAlertToAcceptRide();
-            }
+            startDriverAvailableRunnable();
         }
     }
 
@@ -131,6 +132,7 @@ public class DriverAvailabilityFragment extends Fragment implements View.OnClick
                 if (alert.isShowing()) {
                     alert.dismiss();
                 }
+                startDriverAvailableRunnable();
                 userClient.cancelRideAlert();
             }
         };
@@ -141,16 +143,39 @@ public class DriverAvailabilityFragment extends Fragment implements View.OnClick
                 alert.dismiss();
                 userClient.acceptRideAlert();
                 userClient.setMapInputContainerEnum(MapInputContainerEnum.DriverRideFoundFragment);
-                replaceInputContainerListener.onReplaceInputContainer(MapInputContainerEnum.DriverRideFoundFragment);
+                replaceInputContainerListener.onReplaceInputContainer();
             }
         });
         mRejectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 userClient.cancelRideAlert();
+                startDriverAvailableRunnable();
                 alert.dismiss();
             }
         });
         alert.show();
+    }
+
+    private void startDriverAvailableRunnable() {
+        mHandler.postDelayed(mRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (userClient.isDriverAvailable() && !userClient.isRideAlertAccepted() && userClient.getRideAlert()) {
+                    Log.d(TAG, "ride available");
+                    showAlertToAcceptRide();
+                    mHandler.removeCallbacks(mRunnable);
+                } else {
+                    Log.d(TAG, "startDriverAvailableRunnable: starting runnable to check for ride alerts");
+                    mHandler.postDelayed(mRunnable, WocConstants.UPDATE_INTERVAL);
+                }
+            }
+        }, WocConstants.UPDATE_INTERVAL);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mHandler.removeCallbacks(mRunnable);
     }
 }

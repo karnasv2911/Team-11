@@ -13,6 +13,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
@@ -71,6 +72,8 @@ public class DriverHomeActivity extends AppCompatActivity
     private UserClient userClient;
     private FragmentUtils fragmentUtils = new FragmentUtils();
     private MapInputContainerEnum mapInputContainerEnum;
+    private Handler mHandler = new Handler();
+    private Runnable mRunnable;
 
     private int mMapLayoutState = 0;
     private boolean mLocationPermissionGranted = false;
@@ -93,20 +96,7 @@ public class DriverHomeActivity extends AppCompatActivity
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         userClient = (UserClient) getApplicationContext();
-
-        if (userClient.isInitialLocationBroadcast()) {
-            userClient.init();
-            userClient.setMapInputContainerEnum(MapInputContainerEnum.DriverLoaderFragment);
-        }
-        mapInputContainerEnum = userClient.getMapInputContainerEnum();
-        onReplaceInputContainer(mapInputContainerEnum);
-        if (checkMapServices()) {
-            if (mLocationPermissionGranted) {
-                getLastKnownLocation();
-            } else {
-                getLocationPermission();
-            }
-        }
+        startDriverRunnable();
     }
 
     @Override
@@ -130,8 +120,8 @@ public class DriverHomeActivity extends AppCompatActivity
             if (userClient.isInitialLocationBroadcast() && userClient.getMapInputContainerEnum().compareTo(MapInputContainerEnum.DriverLoaderFragment) == 0) {
                 Log.d("receiver", "Got message");
                 userClient.setInitialLocationBroadcast(false);
-                userClient.setMapInputContainerEnum(MapInputContainerEnum.Unknown);
-                onReplaceInputContainer(MapInputContainerEnum.Unknown);
+                userClient.setMapInputContainerEnum(MapInputContainerEnum.DriverAvailabilityFragment);
+                onReplaceInputContainer();
             }
         }
     };
@@ -329,6 +319,7 @@ public class DriverHomeActivity extends AppCompatActivity
             case REQUEST_CALL:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mapInputContainerEnum = MapInputContainerEnum.valueOf(permissions[2]);
+                    userClient.setMapInputContainerEnum(mapInputContainerEnum);
                     onMakePhoneCall(mapInputContainerEnum, permissions[1]);
                 }
                 break;
@@ -337,6 +328,7 @@ public class DriverHomeActivity extends AppCompatActivity
 
     private void getLastKnownLocation() {
         Log.d(TAG, "getLastKnownLocation: called.");
+        mapInputContainerEnum = userClient.getMapInputContainerEnum();
         if (userClient.isInitialLocationBroadcast() && mapInputContainerEnum.compareTo(MapInputContainerEnum.DriverLoaderFragment) == 0) {
             startLocationService();
         } else {
@@ -379,11 +371,8 @@ public class DriverHomeActivity extends AppCompatActivity
     }
 
     @Override
-    public void onReplaceInputContainer(MapInputContainerEnum key) {
+    public void onReplaceInputContainer() {
         DriverHomeFragment driverHomeFragment = new DriverHomeFragment();
-        Bundle bundle = new Bundle();
-        bundle.putString(getString(R.string.intent_input_container), key.name());
-        driverHomeFragment.setArguments(bundle);
         fragmentUtils.replaceFragment(R.id.driver_home_fragment, TAG, getSupportFragmentManager(), driverHomeFragment);
     }
 
@@ -399,5 +388,48 @@ public class DriverHomeActivity extends AppCompatActivity
                 startActivity(new Intent(Intent.ACTION_CALL, Uri.parse(dial)));
             }
         }
+    }
+
+    private void startDriverRunnable() {
+        mHandler.postDelayed(mRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (userClient.isInitCallCompleted() && !userClient.isDriverVerified()) {
+                    userClient.setMapInputContainerEnum(MapInputContainerEnum.DriverVerificationFragment);
+                    onReplaceInputContainer();
+                    mHandler.removeCallbacks(mRunnable);
+                } else if (userClient.isDriverVerified()) {
+                    userClient.reset();
+                    Log.d(TAG, "driver verified");
+                    userClient.setMapInputContainerEnum(MapInputContainerEnum.DriverLoaderFragment);
+                    onReplaceInputContainer();
+                    if (checkMapServices()) {
+                        if (mLocationPermissionGranted) {
+                            getLastKnownLocation();
+                        } else {
+                            getLocationPermission();
+                        }
+                    }
+                    mHandler.removeCallbacks(mRunnable);
+                } else {
+                    if (!userClient.isInitCallCompleted()) {
+                        userClient.init();
+                        userClient.setMapInputContainerEnum(MapInputContainerEnum.DriverLoaderFragment);
+                        onReplaceInputContainer();
+                    }
+                    Log.d(TAG, "startDriverRunnable: starting runnable to check if driver is verified");
+                    mHandler.postDelayed(mRunnable, WocConstants.UPDATE_INTERVAL);
+                }
+            }
+        }, WocConstants.UPDATE_INTERVAL);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mHandler.removeCallbacks(mRunnable);
+        Intent serviceIntent = new Intent(this, LocationService.class);
+        Log.d(TAG, "stopping LocationService");
+        this.stopService(serviceIntent);
     }
 }

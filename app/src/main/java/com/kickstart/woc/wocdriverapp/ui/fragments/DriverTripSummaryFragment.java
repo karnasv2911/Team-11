@@ -133,8 +133,9 @@ public class DriverTripSummaryFragment extends Fragment implements View.OnClickL
                 String comments = mComments.getText().toString();
                 userClient.rateTrip(rating, comments);
                 alert.dismiss();
+                userClient.reset();
                 userClient.setMapInputContainerEnum(MapInputContainerEnum.DriverAvailabilityFragment);
-                replaceInputContainerListener.onReplaceInputContainer(MapInputContainerEnum.DriverAvailabilityFragment);
+                replaceInputContainerListener.onReplaceInputContainer();
             }
         });
         alert.show();

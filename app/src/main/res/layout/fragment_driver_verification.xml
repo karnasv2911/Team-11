@@ -40,7 +40,7 @@
         android:fontFamily="sans-serif-medium"
         android:text="@string/verfText"
         android:textColor="@color/colorAccent"
-        android:textSize="12sp"
+        android:textSize="14sp"
         android:layout_gravity="center_horizontal"
         android:layout_marginHorizontal="@dimen/vertical_margin"/>
 

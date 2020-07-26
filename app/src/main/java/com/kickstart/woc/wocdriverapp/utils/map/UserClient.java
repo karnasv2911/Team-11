@@ -22,15 +22,17 @@ import java.util.Set;
 public class UserClient extends Application {
 
     private static final String TAG = UserClient.class.getSimpleName();
-    private String destination = "Airport, KIAL Rd, Devanahalli, Bengaluru, Karnataka";
-    private String source = "RMZ Eco World, Bellandur, Bengaluru, Karnataka";
+    private String destination = "";
+    private String source = "";
     private LatLng driverLatLng;
     private String distance; // = "12 km";
     private String time; // = "35 min";
     private String amount = "120";
-    private boolean isDriverAvailable = true;
+    private boolean isDriverVerified;
+    private boolean isDriverAvailable;
     private boolean isRiderNotificationReceived;
     private boolean isRideAlertAccepted;
+    private boolean isRideRequestCancelledByRider;
     private boolean isTripStarted;
     private boolean isInitialBroadcast = true;
     private String[] riderPin;
@@ -40,6 +42,7 @@ public class UserClient extends Application {
     private User driver;
     private String contactSupport;
     private String rideId;
+    private boolean isInitCallCompleted;
 
     /* Start Map Screen */
     // N/W calls
@@ -59,6 +62,20 @@ public class UserClient extends Application {
         map.put("contactSupport", "1234567890");
         wocEnabledLocations = (Set<String>) map.get("wocEnabledLocations");
         contactSupport = (String) map.get("contactSupport");
+        isInitCallCompleted = true;
+    }
+
+    public void reset() {
+        source = null;
+        destination = null;
+        isRiderNotificationReceived = false;
+        isRideAlertAccepted = false;
+        isRideRequestCancelledByRider = false;
+        isTripStarted = false;
+    }
+
+    public boolean isInitCallCompleted() {
+        return isInitCallCompleted;
     }
 
     public void setMapInputContainerEnum(MapInputContainerEnum mapInputContainerEnum) {
@@ -72,12 +89,18 @@ public class UserClient extends Application {
     // Retrieve user details from db, mocked driver details are fetched below
     public void fetchDriverDetails() {
         driver = new User("driverId", true, "driverName", "driver@gmail.com", "1234567890", R.drawable.ic_driver_pin, 4.5, source, null, null, getCurrentTimeStamp());
+        isDriverVerified = getDriverDetails().isVerified();
+        if (isDriverVerified) {
+            isDriverAvailable = true;
+        }
     }
 
     // Retrieve user details from db, mocked rider details are fetched below
     public void fetchRiderDetails(String rideId) {
         riderPin = new String[]{"1", "2", "3", "4"};
-        rider = new User("riderId", true, "riderName", "rider@gmail.com", "1234567890", R.drawable.ic_rider_pin, 4.5, source, destination, null, getCurrentTimeStamp());
+        rider = new User("riderId", true, "riderName", "rider@gmail.com", "1234567890", R.drawable.ic_rider_pin, 4.5, "RMZ Eco World, Bellandur, Bengaluru, Karnataka", "Airport, KIAL Rd, Devanahalli, Bengaluru, Karnataka", null, getCurrentTimeStamp());
+        source = rider.getSource();
+        destination = rider.getDestination();
     }
 
     public User getDriverDetails() {
@@ -141,22 +164,25 @@ public class UserClient extends Application {
         return isInitialBroadcast;
     }
 
-    public void setInitialLocationBroadcast(boolean isInitialBroadcast) {
-        this.isInitialBroadcast = isInitialBroadcast;
+    public void setInitialLocationBroadcast(boolean flag) {
+        isInitialBroadcast = flag;
     }
     /* End Map Screen */
 
     /* Start Driver Verification Screen */
     public boolean isDriverVerified() {
-        return getDriverDetails().isVerified();
+        return isDriverVerified;
+    }
+
+    public void setDriverVerified(boolean flag) {
+        isDriverVerified = flag;
     }
     /* End Driver Verification Screen */
 
     /* Start Driver Availability Screen*/
     // N/W call to accept rides, notify driver when ride appears
-    public void setDriverAvailable(boolean isDriverAvailable) {
-        this.isDriverAvailable = isDriverAvailable;
-        // default behavior: is available ?
+    public void setDriverAvailable(boolean flag) {
+        isDriverAvailable = flag;
     }
 
     public boolean isDriverAvailable() {
@@ -168,8 +194,18 @@ public class UserClient extends Application {
         // send driver details
     }
 
-    public void setRideAlertNotificationReceived(boolean flag, String id) {
-        isRiderNotificationReceived = flag;
+    public boolean isRideRequestCancelledByRider() {
+        return isRideRequestCancelledByRider;
+    }
+
+    public void setRideRequestCancelledByRider() {
+        isRideRequestCancelledByRider = true;
+        isRiderNotificationReceived = false;
+        isRideAlertAccepted = false;
+    }
+
+    public void setRideAlertNotificationReceived(String id) {
+        isRiderNotificationReceived = true;
         rideId = id;
     }
 
@@ -197,6 +233,7 @@ public class UserClient extends Application {
     private void cancelRide() {
         // N/W to BE to cancel ride
         rideId = null;
+        rider = null;
     }
 
     public boolean isRideAlertAccepted() {
