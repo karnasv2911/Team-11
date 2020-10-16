@@ -6,8 +6,11 @@ import android.os.Handler;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.gson.Gson;
 import com.kickstart.woc.wocdriverapp.AppConstant;
 import com.kickstart.woc.wocdriverapp.R;
+import com.kickstart.woc.wocdriverapp.model.Driver;
+import com.kickstart.woc.wocdriverapp.utils.SharedPreferenceUtils;
 
 
 public class SplashActivity extends AppCompatActivity {
@@ -19,13 +22,21 @@ public class SplashActivity extends AppCompatActivity {
         init();
     }
 
+
     private void init() {
+        String driverDetails= SharedPreferenceUtils.getStringValue(AppConstant.PREF_KEY_DRIVER_DETAILS,null);
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent i=new Intent(SplashActivity.this,
-                     OTPValidationActivity.class);
-                startActivity(i);
+
+                Driver rider =new Gson().fromJson(driverDetails, Driver.class);
+                if(rider==null){
+                    Intent createIntent = new Intent(SplashActivity.this, OTPValidationActivity.class);
+                    startActivity(createIntent);
+                }else {
+                    Intent navIntent = new Intent(SplashActivity.this, DriverHomeActivity.class);
+                    startActivity(navIntent);
+                }
                 finish();
             }
         }, AppConstant.SPLASH_SCREEN_TIME_OUT);

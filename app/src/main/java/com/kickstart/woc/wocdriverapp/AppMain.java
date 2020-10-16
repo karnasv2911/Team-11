@@ -4,11 +4,13 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.kickstart.woc.wocdriverapp.model.User;
 import com.kickstart.woc.wocdriverapp.network.NetworkClient;
 import com.kickstart.woc.wocdriverapp.network.NetworkClientBuilder;
+import com.kickstart.woc.wocdriverapp.utils.map.UserClient;
 
 
-public class AppMain extends Application {
+public class AppMain extends UserClient {
     private static Context mContext;
     private static NetworkClient sNetworkClient;
     private static AppMain sApplicationInstance = null;

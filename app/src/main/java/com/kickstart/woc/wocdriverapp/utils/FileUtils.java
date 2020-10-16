@@ -22,4 +22,21 @@ public class FileUtils {
         File image = File.createTempFile(pictureFile,  ".jpg", storageDir);
         return image;
     }
+
+    public static File getImageFile( String imageType,String fileExtension) throws IOException {
+        //TODO NO NEED OF TIMESTAMP -- THIS WILL PROVIDE OVERRIDE FUNCTIONALITY
+        // String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        String mobile= SharedPreferenceUtils.getStringValue(AppConstant.PREF_KEY_MOBILE);
+        File baseFolder = new File(AppConstant.BASE_FOLDER);
+        if (!baseFolder.exists())
+            baseFolder.mkdirs();
+        String imageName = AppConstant.BASE_FOLDER+ mobile+"_"+imageType+"."+fileExtension;
+        File image = new File(imageName);
+        return image;
+    }
+
+
+    public static String constructS3ImageUrl(String fileName){
+        return "https://"+ AppConstant.AWS_IMAGES_BUCKET_NAME +".s3.amazonaws.com/"+fileName;
+    }
 }

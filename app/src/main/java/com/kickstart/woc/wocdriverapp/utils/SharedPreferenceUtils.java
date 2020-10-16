@@ -20,19 +20,19 @@ public class SharedPreferenceUtils {
 
         }
 
-        private static String getStringValue(String key) {
+        public static String getStringValue(String key) {
             mSharedPreferences = getSharedPref();
             String value = mSharedPreferences.getString(key, defaultValue);
             return value;
         }
 
-        private static String getStringValue(String key, String defValue) {
+        public static String getStringValue(String key, String defValue) {
             mSharedPreferences = getSharedPref();
             String value = mSharedPreferences.getString(key, defValue);
             return value;
         }
 
-        private static void putStringValue(String key, String value) {
+        public static void putStringValue(String key, String value) {
             mSharedPreferences = getSharedPref();
             SharedPreferences.Editor editor = mSharedPreferences.edit();
             editor.putString(key, value);

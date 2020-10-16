@@ -11,6 +11,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -28,8 +29,19 @@ import androidx.core.content.ContextCompat;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.kickstart.woc.wocdriverapp.AppConstant;
+import com.kickstart.woc.wocdriverapp.AppMain;
 import com.kickstart.woc.wocdriverapp.R;
+import com.kickstart.woc.wocdriverapp.model.Driver;
+import com.kickstart.woc.wocdriverapp.utils.AppUtils;
 import com.kickstart.woc.wocdriverapp.utils.LogUtils;
+import com.kickstart.woc.wocdriverapp.utils.SharedPreferenceUtils;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static com.kickstart.woc.wocdriverapp.AppConstant.SMS_PERMISSION_CODE;
 
@@ -42,6 +54,10 @@ public class OTPValidationActivity extends BaseActivity implements View.OnClickL
 
     private EditText editText1, editText2, editText3, editText4;
     private EditText[] editTexts;
+
+    EditText mETMobile;
+
+    private  String mobile;
 
     @Override
     protected int getContentViewId() {
@@ -63,8 +79,7 @@ public class OTPValidationActivity extends BaseActivity implements View.OnClickL
             public void onSuccess(InstanceIdResult instanceIdResult) {
                 String token = instanceIdResult.getToken();
                 LogUtils.error("Shikha::FCM Token", token);
-                //TODO send this to server
-                //saveToken(token);
+                AppUtils.saveFCMToken(token);
             }
         });
     }
@@ -81,6 +96,8 @@ public class OTPValidationActivity extends BaseActivity implements View.OnClickL
         mMobileScreenContainer= findViewById(R.id.mobileScreenContainer);
         mOTPScreenContainer= findViewById(R.id.otpScreenContainer);
 
+        mETMobile= findViewById(R.id.etMobile);
+
         mContinue=findViewById(R.id.btnContinue);
         mContinue.setOnClickListener(this);
 
@@ -88,10 +105,10 @@ public class OTPValidationActivity extends BaseActivity implements View.OnClickL
         mConfirm.setOnClickListener(this);
 
 
-        editText1 = (EditText) findViewById(R.id.etOPT1);
-        editText2 = (EditText) findViewById(R.id.etOPT2);
-        editText3 = (EditText) findViewById(R.id.etOPT3);
-        editText4 = (EditText) findViewById(R.id.etOPT4);
+        editText1 = findViewById(R.id.etOPT1);
+        editText2 = findViewById(R.id.etOPT2);
+        editText3 = findViewById(R.id.etOPT3);
+        editText4 = findViewById(R.id.etOPT4);
         editTexts = new EditText[]{editText1, editText2, editText3, editText4};
 
         editText1.addTextChangedListener(new PinTextWatcher(0));
@@ -135,15 +152,92 @@ public class OTPValidationActivity extends BaseActivity implements View.OnClickL
     }
 
     private void performContinue() {
+        mobile = mETMobile.getText() != null ? mETMobile.getText().toString().trim() : "";
+        if (TextUtils.isEmpty(mobile) || mobile.length()!=10) {
+            showToast("Please enter a valid mobile number!");
+            return;
+        } else {
+            SharedPreferenceUtils.putStringValue(AppConstant.PREF_KEY_MOBILE,mobile);
+            JsonObject requestObject= new JsonObject();
+            requestObject.addProperty(AppConstant.REQUEST_KEY_MOBILE,mobile);
+            //TODO enable this for api testing
+            //performNetworkCall(requestObject,AppConstant.NETWORK_CALL_INITIATE_OTP);
+        }
+
+        //TODO onSucess initiate otp api
         toogleView(mOTPScreenContainer,mMobileScreenContainer);
+
     }
 
     private void performConfirm() {
-        Intent navIntent = new Intent(OTPValidationActivity.this, DriverHomeActivity.class);
-        startActivity(navIntent);
+        String riderDetails=SharedPreferenceUtils.getStringValue(AppConstant.PREF_KEY_DRIVER_DETAILS,null);
+        Driver rider =new Gson().fromJson(riderDetails,Driver.class);
+        if(rider==null){
+            Intent createIntent = new Intent(OTPValidationActivity.this, CreateOrEditRiderActivity.class);
+            startActivity(createIntent);
+        }else {
+            Intent navIntent = new Intent(OTPValidationActivity.this, DriverHomeActivity.class);
+            startActivity(navIntent);
+        }
         finish();
     }
 
+
+    private void performNetworkCall(JsonObject requestObject, int networkCallInitiateOtp) {
+        if(networkCallInitiateOtp==AppConstant.NETWORK_CALL_INITIATE_OTP){
+            initiateOTPNetworkCall(requestObject);
+        }else if(networkCallInitiateOtp==AppConstant.NETWORK_CALL_VALIDATE_OTP){
+            validateOTPNetworkCall(requestObject);
+        }
+    }
+
+    private void validateOTPNetworkCall(JsonObject requestObject) {
+        AppMain.getDefaultNetWorkClient().validateOTP(requestObject).enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                LogUtils.debug("Network call OnResponse post call");
+                //processServerResponse(response,"create");
+
+                //TODO shave rider object if it exits
+
+                LogUtils.debug("Response");
+                LogUtils.debug(String.valueOf(response.code()));
+                LogUtils.debug(new Gson().toJson(response.body()));
+
+
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                //TODO: Show retrofit error dialog
+                LogUtils.debug("Network call onFailure post call",new Gson().toJson(call));
+            }
+        });
+    }
+
+    private void initiateOTPNetworkCall(JsonObject requestObject) {
+        AppMain.getDefaultNetWorkClient().initiateOTP(requestObject).enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                LogUtils.debug("Network call OnResponse post call");
+                // processServerResponse(response,"create");
+//TODO onSucess  code toogle view
+                //toogleView(mOTPScreenContainer,mMobileScreenContainer);
+                LogUtils.debug("Response");
+                LogUtils.debug(String.valueOf(response.code()));
+                LogUtils.debug(new Gson().toJson(response.body()));
+
+
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                //TODO: Show retrofit error dialog
+                LogUtils.debug("Network call onFailure post call",new Gson().toJson(call));
+            }
+        });
+
+    }
 
 
 

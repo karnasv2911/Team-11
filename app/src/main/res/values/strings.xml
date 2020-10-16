@@ -16,7 +16,7 @@
     <string name="permission_dialog_message">The app will now request your permission to send and read SMS related services.</string>
     <string name="txt_name">Enter your name</string>
     <string name="txt_email">Email address (optional)</string>
-    <string name="txt_term_n_condition">Agree to Terms and Conditions</string>
+    <string name="txt_term_n_condition">Agree to  <font color='#32b4ff'>Terms and Conditions</font></string>
     <string name="txt_term_n_condition_header">Terms and Conditions</string>
     <string name="txt_disabled">Are you disabled?</string>
     <string name="action_upload">Upload Certificate</string>
@@ -71,4 +71,18 @@
     <string name="locationDetail">Service used to send live location</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="txt_my_trips">My Trips</string>
+    <string name="txt_home_address">Home Address</string>
+    <string name="action_upload_photo">Upload Photo</string>
+    <string name="txt_your_photo">Your Photo</string>
+    <string name="action_upload_licence">Upload Licence</string>
+    <string name="txt_driving_licence">Driving Licence</string>
+    <string name="txt_licence_number">Licence Number</string>
+    <string name="txt_licence_expiry">Licence Expiry (DDMMYYYY)</string>
+    <string name="txt_vehicle_details">Vehicle Details</string>
+    <string name="txt_vehicle_registration_number">Vehicle Registration Number</string>
+    <string name="txt_insurance">Insurance (Policy Number)</string>
+    <string name="action_upload_insurance">Upload Insurance</string>
+    <string name="action_upload_RC">Upload RC</string>
 </resources>

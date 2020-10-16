@@ -1,4 +1,4 @@
-package com.kickstart.woc.wocdriverapp.ui.services;
+package com.kickstart.woc.wocdriverapp.services;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -20,6 +20,7 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.kickstart.woc.wocdriverapp.R;
 import com.kickstart.woc.wocdriverapp.ui.activities.DriverHomeActivity;
+import com.kickstart.woc.wocdriverapp.utils.AppUtils;
 import com.kickstart.woc.wocdriverapp.utils.LogUtils;
 import com.kickstart.woc.wocdriverapp.utils.WoCPushNotificationsUtil;
 
@@ -67,6 +68,8 @@ public class AppFirebaseMessagingService extends FirebaseMessagingService {
     public void onNewToken(@NonNull String s) {
         super.onNewToken(s);
         LogUtils.debug(TAG, "onNewToken::" + s);
+        AppUtils.saveFCMToken(s);
+        //TODO call updateProfile
     }
 
     private void sendNotification(Bundle bundle) {

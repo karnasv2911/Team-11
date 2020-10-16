@@ -3,8 +3,12 @@ package com.kickstart.woc.wocdriverapp.utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.text.TextUtils;
 
+import com.google.gson.Gson;
+import com.kickstart.woc.wocdriverapp.AppConstant;
 import com.kickstart.woc.wocdriverapp.AppMain;
+import com.kickstart.woc.wocdriverapp.model.Driver;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -57,8 +61,17 @@ public class AppUtils {
             e.printStackTrace();
         }
         //TODO change this
-        return "15 May 2020";
+        return "31 July 2020";
     }
 
+    public static void saveDriverDetails(Driver driver){
+        String mobile = driver.getPhoneNumber();
+        SharedPreferenceUtils.putStringValue(AppConstant.PREF_KEY_MOBILE,mobile);
+        SharedPreferenceUtils.putStringValue(AppConstant.PREF_KEY_DRIVER_DETAILS,new Gson().toJson(driver));
+    }
+
+    public static void saveFCMToken(String token) {
+        SharedPreferenceUtils.putStringValue(AppConstant.PREF_KEY_DEVICE_ID,token);
+    }
 
 }
