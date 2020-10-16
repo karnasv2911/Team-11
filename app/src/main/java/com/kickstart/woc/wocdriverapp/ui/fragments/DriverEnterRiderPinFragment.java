@@ -16,7 +16,6 @@ import androidx.fragment.app.Fragment;
 import com.kickstart.woc.wocdriverapp.R;
 import com.kickstart.woc.wocdriverapp.ui.listeners.PhoneCallListener;
 import com.kickstart.woc.wocdriverapp.ui.listeners.ReplaceInputContainerListener;
-import com.kickstart.woc.wocdriverapp.utils.WocConstants;
 import com.kickstart.woc.wocdriverapp.utils.map.MapInputContainerEnum;
 import com.kickstart.woc.wocdriverapp.utils.map.UserClient;
 

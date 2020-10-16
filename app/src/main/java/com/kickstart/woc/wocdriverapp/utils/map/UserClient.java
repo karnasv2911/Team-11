@@ -25,9 +25,9 @@ public class UserClient extends Application {
     private String destination = "";
     private String source = "";
     private LatLng driverLatLng;
-    private String distance; // = "12 km";
-    private String time; // = "35 min";
-    private String amount = "120";
+    private String distance; //
+    private String time; //
+    private String amount;
     private boolean isDriverVerified;
     private boolean isDriverAvailable;
     private boolean isRiderNotificationReceived;
@@ -59,7 +59,7 @@ public class UserClient extends Application {
     public void getInitialConfigs() {
         Map<String, Object> map = new HashMap<>();
         map.put("wocEnabledLocations", new HashSet<>());
-        map.put("contactSupport", "1234567890");
+        map.put("contactSupport", "8105600445");
         wocEnabledLocations = (Set<String>) map.get("wocEnabledLocations");
         contactSupport = (String) map.get("contactSupport");
         isInitCallCompleted = true;

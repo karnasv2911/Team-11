@@ -14,7 +14,6 @@ import android.graphics.Color;
 import android.location.Location;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
@@ -43,7 +42,6 @@ public class LocationService extends Service {
     private FusedLocationProviderClient mFusedLocationClient;
     private MapInputContainerEnum mapInputContainerEnum;
     private UserClient userClient;
-    double increment = 0;
 
     @Nullable
     @Override
@@ -125,10 +123,9 @@ public class LocationService extends Service {
                     if (userClient.isDriverAvailable()) {
                         Location location = locationResult.getLastLocation();
                         if (location != null) {
-                            double lat = location.getLatitude() + increment;
-                            double lng = location.getLongitude() + increment;
+                            double lat = location.getLatitude();
+                            double lng = location.getLongitude();
                             mapInputContainerEnum = userClient.getMapInputContainerEnum();
-//                            increment -= 0.03; // used to mimic live location
                             Log.d(TAG, "onLocationResult: got location result: Lat: " + lat + ", Lng: " + lng);
                             userClient.saveUserLocation(lat, lng);
                             if (userClient.isInitialLocationBroadcast() && mapInputContainerEnum.compareTo(MapInputContainerEnum.DriverLoaderFragment) == 0) {
@@ -140,7 +137,7 @@ public class LocationService extends Service {
                     }
                 }
             };
-        }  else {
+        } else {
             Log.d(TAG, "stop...");
             stopSelf();
         }

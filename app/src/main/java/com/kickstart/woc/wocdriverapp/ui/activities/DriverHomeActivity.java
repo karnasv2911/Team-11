@@ -42,6 +42,9 @@ import com.kickstart.woc.wocdriverapp.R;
 import com.kickstart.woc.wocdriverapp.services.LocationService;
 import com.kickstart.woc.wocdriverapp.ui.fragments.DriverAvailabilityFragment;
 import com.kickstart.woc.wocdriverapp.ui.fragments.DriverHomeFragment;
+import com.kickstart.woc.wocdriverapp.ui.fragments.DriverOnTripFragment;
+import com.kickstart.woc.wocdriverapp.ui.fragments.DriverRideFoundFragment;
+import com.kickstart.woc.wocdriverapp.ui.fragments.DriverTripSummaryFragment;
 import com.kickstart.woc.wocdriverapp.ui.fragments.MapViewFragment;
 import com.kickstart.woc.wocdriverapp.ui.listeners.PhoneCallListener;
 import com.kickstart.woc.wocdriverapp.ui.listeners.ReplaceInputContainerListener;
@@ -130,9 +133,14 @@ public class DriverHomeActivity extends AppCompatActivity
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         Fragment f = getSupportFragmentManager().findFragmentById(R.id.input_view_container);
+        Fragment f1 = getSupportFragmentManager().findFragmentById(R.id.driverHomeContainer);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else if (f instanceof DriverAvailabilityFragment) {//the fragment on which you want to handle your back press
+        } else if (f1 instanceof DriverTripSummaryFragment) {
+            Log.i("BACK PRESSED", "BACK PRESSED");
+        } else if (f instanceof DriverAvailabilityFragment ||
+                f instanceof DriverRideFoundFragment ||
+                f instanceof DriverOnTripFragment) {//the fragment on which you want to handle your back press
             Log.i("BACK PRESSED", "BACK PRESSED");
         } else {
             super.onBackPressed();
