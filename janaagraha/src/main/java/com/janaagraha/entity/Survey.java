@@ -1,10 +1,11 @@
 package com.janaagraha.entity;
 
-import org.springframework.data.mongodb.core.mapping.Document;
+import javax.persistence.Entity;
 
-@Document
+
+@Entity
 public class Survey {
-	@org.springframework.data.annotation.Id
+	@javax.persistence.Id
 	public long Id;
 		private String city;
 	    private String location;

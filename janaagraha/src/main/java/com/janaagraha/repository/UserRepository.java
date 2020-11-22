@@ -1,9 +1,11 @@
 package com.janaagraha.repository;
+
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import com.janaagraha.entity.Survey;
+import com.janaagraha.entity.User;
+
 @Repository
-public interface SurveyRepository extends CrudRepository<Survey, Long> {
+public interface UserRepository extends CrudRepository<User,String> {
 
 }
