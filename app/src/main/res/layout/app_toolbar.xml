@@ -3,7 +3,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="80sp"
-    android:background="@drawable/bg_toolbar_gradient"
+    android:background="@color/backgroundColor"
     android:gravity="bottom">
 
 
@@ -14,12 +14,12 @@
         android:layout_height="?attr/actionBarSize"
         app:popupTheme="@style/AppTheme.PopupOverlay">
 
-        <ImageView
+        <TextView
             android:id="@+id/logo_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="120dp"
-            android:src="@mipmap/logo_header"/>
+            android:text="@string/ichangemycity"/>
     </androidx.appcompat.widget.Toolbar>
 
 </LinearLayout>

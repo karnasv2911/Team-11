@@ -3,8 +3,9 @@
     <color name="colorPrimary">#32b4ff</color>
     <color name="colorPrimaryDark">#003c64</color>
     <color name="colorAccent">#3c3c3c</color>
-    <color name="startGradientColor">#32b4ff</color>
-    <color name="endGradientColor">#003c64</color>
+    <color name="backgroundColor">#333333</color>
+    <color name="startGradientColor">#ffe400</color>
+    <color name="endGradientColor">#b08902</color>
     <color name="editTextBorder">#bfbfbf</color>
     <color name="textColorNormal">#3c3c3c</color>
 
