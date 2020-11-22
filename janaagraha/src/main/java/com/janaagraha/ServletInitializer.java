@@ -1,4 +1,4 @@
-package com.example.janaagraha;
+package com.janaagraha;
 
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
