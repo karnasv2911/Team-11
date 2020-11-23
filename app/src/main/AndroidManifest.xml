@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.kickstart.woc.wocdriverapp">
+    package="com.ichangemycity.ichangemycommunity">
 
     <!-- The Maps SDK for Android uses OpenGL ES version 2 to render the map. -->
     <uses-feature
@@ -27,7 +27,7 @@
     <uses-permission android:name="android.permission.READ_SMS" />
 
     <application
-        android:name=".AppMain"
+        android:name=".utils.map.UserClient"
         android:allowBackup="true"
         android:icon="@drawable/app_logo"
         android:label="@string/app_name"
@@ -35,41 +35,21 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".ui.activities.CreateOrEditRiderActivity" />
         <activity
-            android:name=".ui.activities.DriverHomeActivity"
+            android:name="com.ichangemycity.ichangemycommunity.ui.activities.SurveyHomeActivity"
             android:label=""
             android:theme="@style/AppTheme.NoActionBar">
-            <intent-filter>
-                <action android:name="DriverHomeActivity" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
         </activity>
-        <activity android:name=".ui.activities.SplashActivity">
+        <activity android:name="com.ichangemycity.ichangemycommunity.ui.activities.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ui.activities.OTPValidationActivity"
-            android:windowSoftInputMode="adjustResize"/>
-
-        <activity android:name=".ui.activities.TermsAndConditionActivity"></activity>
-        <receiver
-            android:name=".ui.activities.SmsBroadcastReceiver"
-            android:enabled="false"
-            android:exported="true">
-            <intent-filter android:priority="1000">
-                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
-            </intent-filter>
-        </receiver>
-
-        <service android:name=".services.AppFirebaseMessagingService">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
 
         <!--
            The API key for Google Maps-based APIs is defined as a string resource.

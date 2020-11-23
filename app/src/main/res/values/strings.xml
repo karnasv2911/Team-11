@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">wocdriverapp</string>
+    <string name="app_name">ichangemycity</string>
     <string name="title_activity_navigation_screen">NavigationScreenActivity</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -24,65 +24,36 @@
     <string name="url_terms_webview">https://developer.android.com/guide/webapps/webview</string>
 
     <!-- Map -->
-    <string name="google_maps_key">AIzaSyD2viHGR2Rks56CJSU0kcg6SmxWHOq6vzM</string>
-    <string name="driverVerfPending">Verification Pending</string>
-    <string name="driverVerfPendingText">Verification Pending Text</string>
-    <string name="dAvailability">Availability</string>
-    <string name="dOnDuty">Driver on Duty</string>
-    <string name="dOffDuty">Driver off Duty</string>
-    <string name="dOff">Off</string>
-    <string name="dOn">On</string>
-    <string name="dReady">Ready to take rides  </string>
-    <string name="dContactSupport">Contact Support</string>
-    <string name="rideRequest">Ride Request</string>
-    <string name="routeNum">Route #: </string>
-    <string name="accept">Accept</string>
-    <string name="reject">Reject</string>
-    <string name="rideFound">Ride Found</string>
-    <string name="startTrip">Start Trip</string>
-    <string name="callRider">Call Rider</string>
-    <string name="dCancelRide">Cancel Ride</string>
-    <string name="enterPin">Enter Rider PIN</string>
-    <string name="dConfirmPin">Confirm</string>
-    <string name="dOnTrip">On Trip</string>
-    <string name="endRide">End Ride</string>
-    <string name="dPickup">Pickup</string>
-    <string name="dDestination">Destination</string>
-    <string name="areyousure">Are you sure?</string>
-    <string name="dCancel">Cancel</string>
-    <string name="navigate">Navigate</string>
-    <string name="isRideAccepted">isRideAccepted</string>
-    <string name="cancelRide">Cancel Ride</string>
-    <string name="intent_input_container">intentInputContainer</string>
-    <string name="tripSummary">Trip Summary</string>
-    <string name="distance">Distance</string>
-    <string name="time">Time</string>
-    <string name="rateTrip">Rate Trip</string>
-    <string name="tripSummaryText">Please collect money from the rider</string>
-    <string name="amount">Amount</string>
-    <string name="done">Done</string>
-    <string name="rateRider">Rate Rider</string>
-    <string name="comments">Comments (optional)</string>
-    <string name="Rs">\u20B9</string>
+    <string name="google_maps_key">AIzaSyD3UPFDxtOYhw4y69PWXNfbBKlHErvICiQ</string>
+    <string name="ichangemycity">ichangemycity</string>
+    <string name="take_survey">Take a survey</string>
     <string name="duration">30</string>
-    <string name="verfText">Your verification is currently pending. Once the Kickstart admin team reviews your enrollment and verifies your profile, you will be able to accept rides. In case of further queries, please click on Contact Support.</string>
-    <string name="error">Something went wrong. Please retry after some time!</string>
-    <string name="location">Live location</string>
+    <string name="submit">Submit</string>
+    <string name="next">Next</string>
+    <string name="location">Location</string>
     <string name="locationDetail">Service used to send live location</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="subcategory">Sub-Category</string>
+    <string name="category">Category</string>
+    <string name="intent_survey_list">intent_survey_list</string>
+    <string name="survey_snippet">Survey Details</string>
+    <string name="distance">Distance</string>
+    <string name="qualityscore">Quality Score</string>
+    <string name="viewallsurveys">View all surveys</string>
 
-    <string name="txt_my_trips">My Trips</string>
-    <string name="txt_home_address">Home Address</string>
-    <string name="action_upload_photo">Upload Photo</string>
-    <string name="txt_your_photo">Your Photo</string>
-    <string name="action_upload_licence">Upload Licence</string>
-    <string name="txt_driving_licence">Driving Licence</string>
-    <string name="txt_licence_number">Licence Number</string>
-    <string name="txt_licence_expiry">Licence Expiry (DDMMYYYY)</string>
-    <string name="txt_vehicle_details">Vehicle Details</string>
-    <string name="txt_vehicle_registration_number">Vehicle Registration Number</string>
-    <string name="txt_insurance">Insurance (Policy Number)</string>
-    <string name="action_upload_insurance">Upload Insurance</string>
-    <string name="action_upload_RC">Upload RC</string>
+     <string name="walkability">Walkability</string>
+    <string name="visibility">Visibility</string>
+    <string name="drivability">Drivability</string>
+    <string name="select_subcategory">Please select a subcategory</string>
+    <string name="select_category">Please select a category</string>
+    <string name="alert_message">Your response has been submitted. Thank you for your time!</string>
+    <!-- Radio Buttons -->
+    <!-- Walkability -->
+    <string name="text_broken_footpath">Broken Footpath</string>
+    <string name="text_obstacles">Obstacles</string>
+    <string name="text_encroachment">Encroachment</string>
+    <!-- Drivability -->
+    <string name="text_potholes">Potholes</string>
+    <string name="text_speedbreakers">Speed Breakers</string>
+    <!-- Visibility -->
+    <string name="text_luminosity">Luminosity</string>
 </resources>

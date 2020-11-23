@@ -4,11 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.activities.DriverHomeActivity">
+    tools:context="com.ichangemycity.ichangemycommunity.ui.activities.SurveyHomeActivity">
 
     <include layout="@layout/app_toolbar"/>
 
-    <include layout="@layout/activity_driver_home"
+    <include layout="@layout/activity_survey_home"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="80dp"/>
