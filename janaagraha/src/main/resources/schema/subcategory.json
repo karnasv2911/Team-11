@@ -1,0 +1,61 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/root.json",
+  "type": "object",
+  "title": "Category",
+  "required": [
+    "id",
+    "subCategoryName",
+    "subCategoryDistance",
+    "location",
+    "comments",
+    "latLong",
+    "image"
+  ],
+  "properties": {
+    "id": {
+      "$id": "#/properties/id",
+      "type": "string",
+      "title": "Id of the Sub category",
+      "default": "",
+      "pattern": "^([A-Za-z0-9]{1,64})$"
+    },
+     "subCategoryName": {
+      "$id": "#/properties/subCategoryName",
+      "type": "string",
+      "default": "",
+      "pattern": "^([A-Za-z0-9]{1,128})$",
+      "title": "Sub Category Name"
+    },
+    "subCategoryDistance": {
+      "$id": "#/properties/subCategoryDistance",
+      "type": "string",
+      "default": "",
+      "pattern": "^([A-Za-z0-9]{1,64})$",
+      "title": "Distance Calculated for SubCategory"
+    },
+    "comments": {
+      "$id": "#/properties/comments",
+      "type": "string",
+      "default": "",
+      "pattern": "^([A-Za-z0-9]{1,64})$",
+      "title": "Comments for each subcategory"
+
+    },
+    "latLong": {
+      "$id": "#/properties/latLong",
+      "type": "string",
+      "default": "",
+      "pattern": "^([A-Za-z0-9]{1,64})$",
+      "title": "Lat Long for each subcategory"
+    },
+    "image": {
+      "$id": "#/properties/image",
+      "type": "string",
+      "default": "",
+      "pattern": "^([A-Za-z0-9]{1,64})$",
+      "title": "Image for each subcategory"
+    }
+  }
+}
