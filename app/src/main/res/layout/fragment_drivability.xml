@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_searching_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="20dp"
+    android:orientation="vertical">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/select_sub_category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="36dp"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center_horizontal"
+            android:text="@string/select_subcategory"
+            android:textColor="#333333"
+            android:textSize="16sp"
+            android:textStyle="normal" />
+        <TextView
+            android:id="@+id/drivability"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/select_sub_category"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="44dp"
+            android:fontFamily="sans-serif"
+            android:gravity="center_horizontal"
+            android:text="Drivability"
+            android:textColor="#333333"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+        <RadioGroup
+            android:id="@+id/radio_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/drivability"
+            android:layout_marginBottom="15dp">
+            <RadioButton
+                android:id="@+id/potholes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginBottom="15dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/text_potholes"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:textStyle="normal" />
+            <RadioButton
+                android:id="@+id/speed_breakers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginBottom="15dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/text_speedbreakers"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:textStyle="normal" />
+        </RadioGroup>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/radio_group"
+            android:hint="Start Location">
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginBottom="15dp"
+                android:ems="10"
+                android:fontFamily="sans-serif-medium"
+                android:inputType="textPersonName"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:textStyle="normal" />
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/end_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/location"
+            android:hint="End Location">
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginBottom="15dp"
+                android:ems="10"
+                android:fontFamily="sans-serif-medium"
+                android:inputType="textPersonName"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:textStyle="normal" />
+        </com.google.android.material.textfield.TextInputLayout>
+        <TextView
+            android:id="@+id/quality_score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/end_location"
+            android:layout_marginStart="30dp"
+            android:layout_marginBottom="15dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="Quality Score: 0%"
+            android:textColor="#333333"
+            android:textSize="16sp"
+            android:textStyle="normal" />
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/quality_score"
+            android:layout_marginStart="20dp"
+            android:layout_marginBottom="15dp"
+            android:max="100"
+            android:progress="1" />
+        <Button
+            android:id="@+id/submit"
+            android:layout_width="@dimen/button_width"
+            android:layout_height="@dimen/button_height"
+            android:layout_below="@id/seekBar"
+            android:layout_centerHorizontal="true"
+            android:layout_marginVertical="20dp"
+            android:background="@drawable/rounded_button_yellow"
+            android:fontFamily="sans-serif"
+            android:text="@string/submit"
+            android:textAllCaps="false"
+            android:textColor="#333333"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+</LinearLayout>

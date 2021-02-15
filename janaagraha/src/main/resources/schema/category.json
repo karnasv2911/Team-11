@@ -1,0 +1,43 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/root.json",
+  "type": "object",
+  "title": "Category",
+  "required": [
+    "id",
+    "categoryName",
+    "categoryDistance",
+    "subCategories",
+     "location",
+     "latLong"
+  ],
+  "properties": {
+    "id": {
+      "$id": "#/properties/id",
+      "type": "string",
+      "title": "Id of the category",
+      "default": "",
+      "pattern": "^([A-Za-z0-9]{1,64})$"
+    },
+    "categoryName": {
+      "$id": "#/properties/categoryName",
+      "type": "string",
+      "title": "Name of the Survey - Optional",
+      "default": "",
+      "pattern": "^([A-Za-z0-9]{1,64})$"
+    },
+     "categoryDistance": {
+      "$id": "#/properties/categoryDistance",
+      "type": "integer",
+      "title": "Distance calculated in the Category"
+    },
+    "subCategories": {
+      "type": "array",
+      "items": {
+        "$ref": "./subcategory.json"
+      }
+
+    }
+  }
+}

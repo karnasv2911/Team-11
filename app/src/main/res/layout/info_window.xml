@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#000000">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="100">
+
+        <TextView
+            android:id="@+id/category"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/category"
+            android:textColor="#e8ba14"
+            android:layout_gravity="center"
+            android:layout_weight="40"/>
+
+        <TextView
+            android:id="@+id/txtCategory"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/category"
+            android:textSize="@dimen/text_input_16"
+            android:singleLine="true"
+            android:scrollHorizontally="true"
+            android:layout_gravity="center"
+            android:textColor="#ffffff"
+            android:layout_weight="60"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="100">
+
+        <TextView
+            android:id="@+id/subcategory"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/subcategory"
+            android:textColor="#e8ba14"
+            android:layout_gravity="center"
+            android:layout_weight="40"/>
+
+        <TextView
+            android:id="@+id/txtSubCategory"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/subcategory"
+            android:textSize="@dimen/text_input_16"
+            android:singleLine="true"
+            android:scrollHorizontally="true"
+            android:layout_gravity="center"
+            android:textColor="#ffffff"
+            android:layout_weight="60"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="100">
+
+        <TextView
+            android:id="@+id/qualityscore"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/qualityscore"
+            android:textColor="#e8ba14"
+            android:layout_gravity="center"
+            android:layout_weight="40"/>
+
+        <TextView
+            android:id="@+id/txtQualityScore"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/qualityscore"
+            android:textSize="@dimen/text_input_16"
+            android:singleLine="true"
+            android:layout_gravity="center"
+            android:textColor="#ffffff"
+            android:layout_weight="60"/>
+    </LinearLayout>
+
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:orientation="horizontal"-->
+<!--        android:weightSum="100">-->
+
+<!--        <TextView-->
+<!--            android:id="@+id/distance"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:fontFamily="sans-serif-medium"-->
+<!--            android:text="@string/distance"-->
+<!--            android:textColor="#e8ba14"-->
+<!--            android:layout_gravity="center"-->
+<!--            android:layout_weight="25"/>-->
+
+<!--        <TextView-->
+<!--            android:id="@+id/txtDistance"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:fontFamily="sans-serif-medium"-->
+<!--            android:text="@string/distance"-->
+<!--            android:textSize="@dimen/text_input_16"-->
+<!--            android:singleLine="true"-->
+<!--            android:scrollHorizontally="true"-->
+<!--            android:layout_gravity="center"-->
+<!--            android:textColor="#ffffff"-->
+<!--            android:layout_weight="75"/>-->
+<!--    </LinearLayout>-->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="100">
+
+        <TextView
+            android:id="@+id/location"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/location"
+            android:textColor="#e8ba14"
+            android:layout_gravity="center"
+            android:layout_weight="40"/>
+
+        <TextView
+            android:id="@+id/txtLocation"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/location"
+            android:textSize="@dimen/text_input_16"
+            android:layout_gravity="center"
+            android:textColor="#ffffff"
+            android:layout_weight="60"/>
+    </LinearLayout>
+
+</LinearLayout>
